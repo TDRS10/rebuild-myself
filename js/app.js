@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const S = m => window.Store, $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const cur = () => S().state.settings.currency || 'ج.م';
   const fmt = n => (n || 0).toLocaleString('en-US') + ' ' + cur();
   const dFmt = ds => { try { return new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(ds + 'T12:00:00')); } catch (e) { return ds; } };

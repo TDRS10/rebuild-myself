@@ -1,5 +1,5 @@
 /* راجع لنفسي — Service Worker: Offline كامل */
-const CACHE = 'raj3-v7';
+const CACHE = 'raj3-v8';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/styles.css', './js/store.js', './js/data-rain.js', './js/app.js',
