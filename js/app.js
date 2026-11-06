@@ -423,10 +423,20 @@
     const route = ROUTES.includes(hash) ? hash : 'home';
     const y = window.scrollY;
     $('#view').innerHTML = VIEWS[route]();
-    $$('#nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route));
+    $$('[data-route]').forEach(a => a.classList.toggle('active', a.dataset.route === route));
+    const moreIn = ['boundaries', 'goals', 'challenges', 'reports', 'settings'].includes(route);
+    $('#moreBtn').classList.toggle('sheet-open', moreIn);
+    closeSheet();
     window.scrollTo(0, y);
     requestAnimationFrame(() => window.scrollTo(0, y));
   }
+
+  /* ورقة «المزيد» */
+  function closeSheet() { const s = $('#moreSheet'); if (s) s.hidden = true; }
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-act="more"]')) { $('#moreSheet').hidden = false; return; }
+    if (e.target.closest('[data-act="more-close"]')) closeSheet();
+  });
   window.addEventListener('hashchange', render);
 
   /* ===== أحداث عامة ===== */

@@ -35,15 +35,25 @@
 
 <nav class="bottomnav" id="nav" aria-label="التنقل الرئيسي">
   <a href="#/home"      data-route="home"><span>🏠</span>الرئيسية</a>
-  <a href="#/mind"      data-route="mind"><span>💚</span>استعادة نفسي</a>
+  <a href="#/mind"      data-route="mind"><span>💚</span>نفسي</a>
   <a href="#/money"     data-route="money"><span>💰</span>أموالي</a>
   <a href="#/work"      data-route="work"><span>🛵</span>شغلي</a>
-  <a href="#/boundaries" data-route="boundaries"><span>🛡️</span>حدودي</a>
-  <a href="#/goals"     data-route="goals"><span>🎯</span>أهدافي</a>
-  <a href="#/challenges" data-route="challenges"><span>🔥</span>التحديات</a>
-  <a href="#/reports"   data-route="reports"><span>📊</span>التقارير</a>
-  <a href="#/settings"  data-route="settings"><span>⚙️</span>الإعدادات</a>
+  <button type="button" id="moreBtn" data-act="more" aria-haspopup="true"><span>⋯</span>المزيد</button>
 </nav>
+
+<div id="moreSheet" hidden>
+  <div class="sheet-backdrop" data-act="more-close"></div>
+  <div class="sheet-card" role="dialog" aria-label="المزيد من الصفحات">
+    <p class="hint center">المزيد من الأقسام</p>
+    <div class="grid c2">
+      <a href="#/boundaries" data-route="boundaries" class="card clickable">🛡️<br>حدودي الشخصية</a>
+      <a href="#/goals"      data-route="goals"       class="card clickable">🎯<br>أهداف المستقبل</a>
+      <a href="#/challenges" data-route="challenges" class="card clickable">🔥<br>التحديات</a>
+      <a href="#/reports"    data-route="reports"    class="card clickable">📊<br>التقارير</a>
+      <a href="#/settings"   data-route="settings"   class="card clickable">⚙️<br>الإعدادات</a>
+    </div>
+  </div>
+</div>
 
 <div id="toast" role="status" aria-live="polite"></div>
 

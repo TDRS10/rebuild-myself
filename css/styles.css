@@ -223,27 +223,42 @@ details.formbox form{padding-bottom:12px}
 .note-card h3{color:var(--emerald);font-size:1rem;margin-bottom:6px}
 .note-card p{font-size:.87rem;color:#bcd6cb}
 
-/* ===== Bottom nav ===== */
+/* ===== Bottom nav (5 أصناف ثابتة + المزيد في ورقة منبثقة) ===== */
 .bottomnav{
   position:fixed;bottom:0;right:0;left:0;z-index:40;
-  display:flex;overflow-x:auto;
+  display:flex;
   background:rgba(13,18,26,.96);
   backdrop-filter:blur(10px);
   border-top:1px solid var(--line);
-  padding:6px 6px calc(6px + env(safe-area-inset-bottom));
-  scrollbar-width:none;
+  padding:6px 8px calc(8px + env(safe-area-inset-bottom));
 }
-.bottomnav::-webkit-scrollbar{display:none}
-.bottomnav a{
-  flex:0 0 auto;min-width:74px;
+.bottomnav a,.bottomnav button{
+  flex:1;min-width:0;
   display:flex;flex-direction:column;align-items:center;gap:2px;
-  font-size:.68rem;color:var(--muted);
-  padding:6px 8px;border-radius:11px;
+  font-size:.66rem;font-weight:600;color:var(--muted);
+  background:none;border:none;cursor:pointer;
+  padding:5px 2px;border-radius:12px;
   transition:color .15s,background .15s;
+  white-space:nowrap;
 }
-.bottomnav a span{font-size:1.15rem;filter:grayscale(.5);opacity:.8}
-.bottomnav a.active{color:var(--emerald);background:rgba(16,185,129,.1)}
-.bottomnav a.active span{filter:none;opacity:1}
+.bottomnav span{font-size:1.2rem;line-height:1.3}
+.bottomnav a:active,.bottomnav button:active{background:rgba(255,255,255,.05)}
+.bottomnav a.active{color:var(--emerald);background:rgba(16,185,129,.12)}
+.bottomnav button{position:relative}
+.bottomnav button.sheet-open{color:var(--emerald);background:rgba(16,185,129,.12)}
+
+/* ===== ورقة المزيد ===== */
+#moreSheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end}
+#moreSheet[hidden]{display:none}
+.sheet-backdrop{position:absolute;inset:0;background:rgba(4,6,10,.6)}
+.sheet-card{
+  position:relative;width:100%;max-width:960px;margin:0 auto;
+  background:var(--surface);border:1px solid var(--line);border-bottom:none;
+  border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+  animation:sheetUp .25s ease both;max-height:80vh;overflow:auto;
+}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet-card .grid.c2{grid-template-columns:repeat(2,1fr);text-align:center}
 
 /* ===== Toast ===== */
 #toast{
@@ -286,7 +301,8 @@ details.formbox form{padding-bottom:12px}
 
 @media(min-width:760px){
   body{padding-bottom:20px}
-  .bottomnav{justify-content:center;border-radius:0}
+  .bottomnav{justify-content:center;border-radius:0;max-width:960px;margin:0 auto;right:0;left:0}
+  .bottomnav a,.bottomnav button{flex:0 0 auto;min-width:86px;padding:5px 14px}
   #view{padding:20px 24px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
