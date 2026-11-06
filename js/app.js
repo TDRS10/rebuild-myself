@@ -594,9 +594,12 @@
   /* ===== PWA ===== */
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window._deferredPrompt = e; const b = $('#installBtn'); if (b) b.hidden = false; });
+  // في standalone على أندرويد: new Notification محظور من الصفحة (Illegal constructor) — لذا هذا ناجذ
   if (window.Notification && Notification.permission === 'granted' && S().state.lastNotify !== todayStr()) {
-    new Notification('راجع لنفسي 🌿', { body: 'سجّل مصروفات اليوم ودخل الطلبات — دقيقتان تكفيان.' });
-    S().state.lastNotify = todayStr(); S().save();
+    try {
+      new Notification('راجع لنفسي 🌿', { body: 'سجّل مصروفات اليوم ودخل الطلبات — دقيقتان تكفيان.' });
+      S().state.lastNotify = todayStr(); S().save();
+    } catch (e) { /* التطبيق المثبت يرفضه — التنبيهات الداخلية تُغطي */ }
   }
 
   /* خلفية DataRain — المحتوى أولًا، الحركة بعده؛ أجهزة ضعيفة (≤3 أنوية) تتجاوزها تلقائيًا
