@@ -1,5 +1,5 @@
 /* راجع لنفسي — Service Worker: Offline كامل */
-const CACHE = 'raj3-v8';
+const CACHE = 'raj3-v9';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/styles.css', './js/store.js', './js/data-rain.js', './js/app.js',
@@ -7,7 +7,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // cache:'reload' يأمر الملفات على الشبكة الفعلية — GitHub Pages كاش 10 دقايق ممكن يزوّرنا بنسخة قديمة
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
