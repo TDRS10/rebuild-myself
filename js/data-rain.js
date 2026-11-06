@@ -194,7 +194,8 @@
       active = next;
     }
     function applyCount(uniform) {
-      const auto = clamp(Math.round((w * h) / 520), 1200, 5200);
+      const minCount = window.innerWidth < 500 ? 900 : 1200;
+      const auto = clamp(Math.round((w * h) / 520), minCount, 5200);
       targetCount = clamp(Math.round(P.count !== undefined ? P.count : auto), 1, MAX);
       setActive(targetCount * quality, uniform);
     }
@@ -522,6 +523,7 @@
       const nw = Math.max(1, rect.width || window.innerWidth);
       const nh = Math.max(1, rect.height || window.innerHeight);
       let d = Math.min(window.devicePixelRatio || 1, 2);
+      if (window.innerWidth < 820 && d > 1.35) d = 1.35; // موبايل: كثافة أقل أو كومبوosition إضافي GPU
       if (nw * nh * d * d > 4.5e6) d = Math.sqrt(4.5e6 / (nw * nh));
       if (nw === w && nh === h && d === dpr) return;
 

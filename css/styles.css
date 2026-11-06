@@ -257,12 +257,12 @@ details.formbox form{padding-bottom:12px}
 #toast.show{opacity:1;transform:translateX(50%) translateY(0)}
 
 /* ===== Lock screen ===== */
-#lockScreen{
+#lockScreen,#bootFallback{
   position:fixed;inset:0;z-index:100;
   background:rgba(8,11,15,.97);
   display:grid;place-items:center;padding:20px;
 }
-#lockScreen[hidden]{display:none}
+#lockScreen[hidden],#bootFallback[hidden]{display:none}
 .lock-card{
   background:var(--surface);border:1px solid var(--line);
   border-radius:20px;padding:30px 26px;text-align:center;
@@ -377,7 +377,10 @@ input,select,textarea{box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
 }
 #view{position:relative;z-index:1}
 @media(max-width:760px){
-  .dr-bloom{opacity:.42}   /* موبايل: توهج أخف سعةً للبطارية */
+  /* أندرويد: لجنتين كومبوosition الثقيلتين — أقل أو تلغيها (شاشة سوداء بعد الريفريش) */
+  .topbar{backdrop-filter:none;background:rgba(11,15,20,.9)}
+  .dr-grain{display:none}
+  .dr-bloom{opacity:.32;filter:blur(8px)}
 }
 @media(prefers-reduced-motion:reduce){
   .dr-root{animation:none}

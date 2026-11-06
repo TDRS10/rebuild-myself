@@ -392,6 +392,7 @@
     <h2 class="sec-title">🎨 المظهر</h2>
     <div class="card">
       <label class="check"><input type="checkbox" data-rain-toggle ${st.settings.rain !== false ? 'checked' : ''}> خلفية «المطر الرقمي» الحية</label>
+      <p class="hint">على الأجهزة الضعيفة (≤3 أنوية معالجة){' '}{' '}{weakDevice ? 'مقفولة تلقائيًا للحفاظ على سرعة التطبيق' : ''} بتتقفل تلقائيًا. لو ظهرت شاشة سوداء، اقفلها وأعد التحميل.</p>
       <p class="hint">أقفلها على جهاز قديم أو بطارية ضعيفة — الموقع يشتغل كامل حتى بغيرها.</p>
     </div>
     <h2 class="sec-title">🔔 التنبيهات</h2>    <div class="card">
@@ -588,7 +589,7 @@
     S().state.lastNotify = todayStr(); S().save();
   }
 
-  /* خلفية DataRain — تُقفل من الإعدادات، وتُتجاوز في الاختبارات/المتصفحات القديمة */
+  /* خلفية DataRain — المحتوى أولًا، الحركة بعده؛ أجهزة ضعيفة (≤3 أنوية) تتجاوزها تلقائيًا */
   function startRain() {
     try {
       const host = $('#rain');
@@ -598,7 +599,12 @@
       return window.createDataRain(host, { flowSpeed: 0.8, obstacleRadius: 60 });
     } catch (e) { return null; }
   }
-  window._rain = S().state.settings.rain !== false ? startRain() : null;
+  const weakDevice = (navigator.hardwareConcurrency || 8) <= 3;
 
   render();
+
+  // المطر يبدأ بعد ما المحتوى يقعد على الشاشة — مش أصله
+  requestAnimationFrame(() => setTimeout(() => {
+    if (S().state.settings.rain !== false && !weakDevice) window._rain = startRain();
+  }, 300));
 })();
