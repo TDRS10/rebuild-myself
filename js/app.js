@@ -589,7 +589,8 @@
     S().state.lastNotify = todayStr(); S().save();
   }
 
-  /* خلفية DataRain — المحتوى أولًا، الحركة بعده؛ أجهزة ضعيفة (≤3 أنوية) تتجاوزها تلقائيًا */
+  /* خلفية DataRain — المحتوى أولًا، الحركة بعده؛ أجهزة ضعيفة (≤3 أنوية) تتجاوزها تلقائيًا
+     و?safe=1 = فتح بأمان من غير المطر لحالت التصميم في المتصفح الدُّجّ */
   function startRain() {
     try {
       const host = $('#rain');
@@ -600,11 +601,12 @@
     } catch (e) { return null; }
   }
   const weakDevice = (navigator.hardwareConcurrency || 8) <= 3;
+  const safeBoot = /[?&]safe=1/.test(location.search);
 
   render();
 
   // المطر يبدأ بعد ما المحتوى يقعد على الشاشة — مش أصله
   requestAnimationFrame(() => setTimeout(() => {
-    if (S().state.settings.rain !== false && !weakDevice) window._rain = startRain();
+    if (S().state.settings.rain !== false && !weakDevice && !safeBoot) window._rain = startRain();
   }, 300));
 })();

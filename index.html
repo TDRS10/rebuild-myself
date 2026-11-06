@@ -51,17 +51,27 @@
   <div class="lock-card">
     <div class="lock-mark">◆</div>
     <h2>حصل خطأ في العرض</h2>
-    <p>المحتوى الجدّي كلّه محفوظ على جهازك وآمن — جرّب واحد من دول:</p>
+    <p>المحتوى على جهازك محفوظ وآمن. جرّب:</p>
     <button class="btn primary block" onclick="location.reload()">🔄 إعادة التحميل</button>
     <button class="btn block" style="margin-top:8px" onclick="try{const s=JSON.parse(localStorage.getItem('raj3_nafsi_v1'));s.settings=s.settings||{};s.settings.rain=false;localStorage.setItem('raj3_nafsi_v1',JSON.stringify(s));}catch(e){};location.reload()">🌙 فتح من غير الحركة</button>
+    <p class="err" id="bootErr"></p>
+    <p class="hint" style="margin-top:6px">لو الخرج بيكرر: صورة الشاشة أو نص الخطأ الأحمر فوق وابعت لِ Developer.</p>
   </div>
 </div>
 
 <script>
-  // أي سقط في app.js يظهر البديل بدل شاشة سوداء صامتة
-  window.addEventListener('error', function () {
+  // أي سقط في app.js يظهر البديل بدل شاشة سوداء صامتة — ويكتب الخطأ نفسه للفحص
+  window.addEventListener('error', function (e) {
     var fb = document.getElementById('bootFallback');
-    if (fb && !document.getElementById('view').children.length) fb.hidden = false;
+    var out = document.getElementById('bootErr');
+    if (fb && !document.getElementById('view').children.length) {
+      fb.hidden = false;
+      if (out) out.textContent = 'الخطأ: ' + (e.message || 'غير معروف') + ' (' + (e.lineno || '?') + ')';
+    }
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var out = document.getElementById('bootErr');
+    if (out && !out.textContent) out.textContent = 'رفض غير مسجل: ' + ((e.reason && e.reason.message) || e.reason || '');
   });
 </script>
 
