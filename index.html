@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>راجع لنفسي — أنا أستحق أبدأ من جديد</title>
+<meta name="description" content="موقع عربي لاستعادة التوازن النفسي والمالي والعملي — بياناتك محفوظة على جهازك فقط.">
+<meta name="theme-color" content="#0b0f14">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="rain" class="dr-root" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">◆</span>
+    <div>
+      <h1>راجع لنفسي</h1>
+      <p>أنا أستحق أبدأ من جديد</p>
+    </div>
+  </div>
+  <button class="icon-btn" data-action="lock" title="قفل الشاشة" aria-label="قفل الشاشة">🔒</button>
+</header>
+
+<main id="view" tabindex="-1"></main>
+
+<nav class="bottomnav" id="nav" aria-label="التنقل الرئيسي">
+  <a href="#/home"      data-route="home"><span>🏠</span>الرئيسية</a>
+  <a href="#/mind"      data-route="mind"><span>💚</span>استعادة نفسي</a>
+  <a href="#/money"     data-route="money"><span>💰</span>أموالي</a>
+  <a href="#/work"      data-route="work"><span>🛵</span>شغلي</a>
+  <a href="#/boundaries" data-route="boundaries"><span>🛡️</span>حدودي</a>
+  <a href="#/goals"     data-route="goals"><span>🎯</span>أهدافي</a>
+  <a href="#/challenges" data-route="challenges"><span>🔥</span>التحديات</a>
+  <a href="#/reports"   data-route="reports"><span>📊</span>التقارير</a>
+  <a href="#/settings"  data-route="settings"><span>⚙️</span>الإعدادات</a>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="lockScreen" hidden>
+  <form id="formUnlock" class="lock-card">
+    <div class="lock-mark">◆</div>
+    <h2>راجع لنفسي</h2>
+    <p>أدخل رمز PIN لفتح بياناتك</p>
+    <input type="password" inputmode="numeric" id="pinInput" autocomplete="current-password" placeholder="••••" required>
+    <button class="btn primary" type="submit">فتح</button>
+    <p class="hint" id="pinError" hidden>الرمز غير صحيح</p>
+  </form>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/data-rain.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
