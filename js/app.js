@@ -65,9 +65,11 @@
     const go = S().goalsOverall();
     const alerts = S().alerts();
     const checkDays = Object.keys(st.daily).filter(d => st.daily[d].mood > 0).length;
+    const h = new Date().getHours();
+    const greeting = h < 5 ? 'سهرة هادية؟' : h < 12 ? 'صباح الورد 🌅' : h < 17 ? 'يا نهار مرتب ☀️' : h < 22 ? 'مساء الخير 🌆' : 'ليلة هادية 🌙';
     return `
     <div class="hero">
-      <p class="date">${esc(dFmt(t))}</p>
+      <p class="date">${esc(dFmt(t))} · ${greeting}</p>
       <p class="quote">💬 ${esc(quoteOfDay())}</p>
       <button class="btn gold block" data-act="start-day">🌅 ابدأ يومك</button>
     </div>
@@ -223,6 +225,7 @@
     <h2 class="sec-title">🎯 أهداف تدريجية (بدون ضغط)</h2>
     ${tier(2, 'الهدف الأول — خفّف وابدأ')}${tier(4, 'الهدف الثاني')}${tier(6, 'الهدف الثالث — الحد الأقصى الصحي')}
     <div class="alert info">💡 الهدف هو الاستمرارية مش عدد الساعات. لو تعبت، وقّف. الصحة قبل أي بونص.</div>
+    ${th >= 7 ? '<div class="alert warn">🛑 عدّى من 6 ساعات النهارده — وقّف هنا. باقي الأيام تعتمد على صحتك مش على زحمة اليوم ده.</div>' : ''}
 
     <details class="formbox" open><summary>➕ تسجيل يوم عمل (أو تحديثه)</summary>
       <form data-form="work"><input type="hidden" name="wid">
@@ -392,7 +395,7 @@
     <h2 class="sec-title">🎨 المظهر</h2>
     <div class="card">
       <label class="check"><input type="checkbox" data-rain-toggle ${st.settings.rain !== false ? 'checked' : ''}> خلفية «المطر الرقمي» الحية</label>
-      <p class="hint">على الأجهزة الضعيفة (≤3 أنوية معالجة){' '}{' '}{weakDevice ? 'مقفولة تلقائيًا للحفاظ على سرعة التطبيق' : ''} بتتقفل تلقائيًا. لو ظهرت شاشة سوداء، اقفلها وأعد التحميل.</p>
+      <p class="hint">${weakDevice ? 'مقفولة تلقائيًا على جهازك للحفاظ على السرعة (جهاز ضعيف). ' : ''}لو ظهرت شاشة سوداء أو بطارية بتنضج — اقفلها. الموقع يشتغل كامل حتى بغيرها.</p>
       <p class="hint">أقفلها على جهاز قديم أو بطارية ضعيفة — الموقع يشتغل كامل حتى بغيرها.</p>
     </div>
     <h2 class="sec-title">🔔 التنبيهات</h2>    <div class="card">
@@ -418,6 +421,17 @@
 
   const VIEWS = { home: vHome, mind: vMind, money: vMoney, work: vWork, boundaries: vBoundaries, goals: vGoals, challenges: vChallenges, reports: vReports, settings: vSettings };
 
+  function wireLabels() {
+    // ربط كل label بحقلها تلقائياً (a11y) — أرخص من إعادة هيكل كل نموذج بيدويًا
+    $('#view').querySelectorAll('.field').forEach(f => {
+      const lbl = f.querySelector('label'), ctl = f.querySelector('input,select,textarea');
+      if (lbl && ctl && !ctl.id) {
+        ctl.id = 'f-' + Math.random().toString(36).slice(2, 8);
+        lbl.htmlFor = ctl.id;
+      }
+    });
+  }
+
   function render() {
     const hash = location.hash.replace('#/', '') || 'home';
     const route = ROUTES.includes(hash) ? hash : 'home';
@@ -429,6 +443,7 @@
     closeSheet();
     window.scrollTo(0, y);
     requestAnimationFrame(() => window.scrollTo(0, y));
+    wireLabels();
   }
 
   /* ورقة «المزيد» */

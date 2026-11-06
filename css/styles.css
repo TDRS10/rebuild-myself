@@ -133,6 +133,8 @@ input,select,textarea{
   outline:none;transition:border-color .15s;
 }
 input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+/* إبراز التركيز بلوحة المفاتيح فقط (a11y) — النقر بالماوس مش بيريّح الواجهة */
+a:focus-visible,button:focus-visible,.card[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 input[type=range]{padding:0;accent-color:var(--emerald);background:transparent;border:none}
 input[type=checkbox]{width:auto;accent-color:var(--emerald);transform:scale(1.25);margin-left:8px}
 textarea{min-height:96px;resize:vertical}
