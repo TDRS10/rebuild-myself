@@ -99,6 +99,45 @@
     </div>`;
   }
 
+  /* شبكة كلم العقل — مودلات مجانية بترتيب الأولوية، واحدة تقع نجرب اللي بعدها */
+  const AI_MODELS = ['nvidia/nemotron-3-ultra-550b-a55b:free', 'google/gemma-4-31b-it:free'];
+  let aiChat = []; // تاريخ الشات داخل الجلسة فقط
+  function chatHtml(pending) {
+    return (aiChat.map(m =>
+      '<div class="alert ' + (m.role === 'user' ? 'info' : 'good') + '" style="white-space:pre-line"><span>' + (m.role === 'user' ? '🙋' : '🧠') + '</span><span>' + esc(m.text) + '</span></div>').join('')
+      + (pending || ''))
+      || '<p class="empty">اسأل العقل أي حاجة عن فلوسك أو شغلك أو حالتك.</p>';
+  }
+  function aiCall(q) {
+    const tips = S().advise();
+    const mo = S().monthRange(0), wr = S().weekRange(0);
+    const wk = S().workTotals(S().workInRange(wr.from, wr.to));
+    const moods = []; for (let i = 0; i < 7; i++) { const r = S().state.daily[S().addDays(S().today(), -i)]; if (r && r.mood > 0) moods.push(r.mood); }
+    const digest = {
+      currency: S().state.settings.currency, available: S().available(), savings: S().wallet(),
+      monthIncome: S().income(mo.from, mo.to), monthExpense: S().expenses(mo.from, mo.to),
+      workHoursThisWeek: Math.round(wk.hours), ordersThisWeek: wk.orders, netThisWeek: Math.round(wk.net),
+      moodAvg7: moods.length ? Math.round(moods.reduce((a, b) => a + b, 0) / moods.length * 10) / 10 : null,
+      savingsSplitPct: S().state.settings.splits.save, goals: S().state.goals.map(g => g.name + ': ' + S().goalProgress(g).pct + '%')
+    };
+    const sys = 'انت "عقل الموقع" في تطبيق "راجع لنفسي" — مدرب مصري ودود بيساعد مُلّاك (سائق طلبيات) يبني توازن نفسي ومالي وعمل بعد ضغط مادي. ' +
+      'تكلم عربي مصري بسيط ودافي، ردود قصيرة عملية (3-5 جمل بحد أقصى)، من غير افتراضات عن فلوس ما مش موجودة، ولا عبارات إنشائية جوفاء. ' +
+      'لو رقم غير موجود قول صاحبه يسجله الأول. بياناته الحالية: ' + JSON.stringify(digest) +
+      ' اقتراحاتك المحلية المحسوبة: ' + tips.map(t => t.level + ':' + t.title).join(' | ');
+    const msgs = [{ role: 'system', content: sys }]
+      .concat(aiChat.slice(-8).map(m => ({ role: m.role, content: m.text })), [{ role: 'user', content: q }]);
+    let lastErr = null;
+    return AI_MODELS.reduce((chain, model) => chain.catch(() => fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + S().state.settings.aiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, max_tokens: 400, messages: msgs })
+    }).then(r => r.json()).then(d => {
+      const txt = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+      if (!txt) throw new Error((d.error && d.error.message) || 'ما جاش رد');
+      return txt;
+    })), Promise.reject());
+  }
+
   /* ========== صفحة: عقل الموقع ========== */
   function vAdvice() {
     const tips = S().advise();
@@ -114,7 +153,16 @@
     <p class="hint">قرأت: دخلك ومصروفك الشهري · ساعات شغلك الأسبوعية · مزاجك آخر 7 أيام · تحدياتك وأهدافك. <strong>${person}</strong> هي نقطة تركيز اليوم.</p>
     ${top}
     <h2 class="sec-title">ملاحظات كمان</h2>
-    ${rest}`;
+    ${rest}
+    <h2 class="sec-title">💬 كلم العقل</h2>
+    <div class="card">
+      <div id="aiChatOut">${chatHtml('')}</div>
+      <form data-form="ai-chat" style="display:flex;gap:8px;margin-top:10px">
+        <textarea name="q" placeholder="اسأل عن فلوسك، شغلك، أو حالتك…" maxlength="500" required style="height:64px;flex:1"></textarea>
+        <button class="btn sm" type="submit">✈️</button>
+      </form>
+      <p class="hint mt">الشات الحي محتاج مفتاح — من ⚙️ الإعدادات ← «الذكاء الاصطناعي». كلام الشات بيوصل لخدمة OpenRouter للإجابة.</p>
+    </div>`;
   }
 
   /* ========== صفحة: استعادة نفسي ========== */
@@ -425,6 +473,16 @@
     <div class="card"><p class="hint">ثبّت التطبيق على شاشة أندرويد للوصول السريع والعمل دون إنترنت.</p>
       <button class="btn sm mt" data-act="install" id="installBtn" hidden>📲 تثبيت التطبيق</button>
       <p class="hint mt" id="installHint">لو الزر مخفي: من قائمة المتصفح اختر "إضافة إلى الشاشة الرئيسية".</p></div>
+    <h2 class="sec-title">🧠 الذكاء الاصطناعي (اختياري)</h2>
+    <div class="card">
+      <p class="hint">${s.aiKey ? 'المفتاح مُخزَّن على جهازك بس ✅ — شات «عقل الموقع» مفعّل. ولا شى كتابتك في ملف التصدير.' : 'لوّص مفتاح OpenRouter للشات الحي مع العقل. المفتاح يبقى على جهازك فقط، ولا تُصدَّر مع النسخ الاحتياطية.'}</p>
+      <form data-form="aikey" style="display:flex;gap:8px;margin-top:8px">
+        <input name="aiKey" type="password" placeholder="${s.aiKey ? 'مفتاح جديد…' : 'sk-or-v1-…'}" style="flex:1">
+        <button class="btn sm" type="submit">${s.aiKey ? 'تغيير' : 'تخزين'}</button>
+      </form>
+      ${s.aiKey ? '<button class="btn danger sm mt" data-act="aikey-clear">مسح المفتاح</button>' : ''}
+      ${s.aiKey ? '<p class="hint mt">كلام الشات بيوصل لخدمة OpenRouter للإجابة — باقي البيانات واقفة عندك.</p>' : ''}
+    </div>
     <h2 class="sec-title">💾 النسخ الاحتياطي</h2>
     <details class="formbox"><summary>تصدير البيانات (JSON)</summary>
       <button class="btn sm" data-act="export">⬇️ تنزيل نسخة احتياطية</button>
@@ -501,6 +559,7 @@
     else if (act === 'ch-retry') { S().retryChallenge(b.dataset.id); toast('محاولة جديدة من غير عقاب ✨'); render(); }
     else if (act === 'rep-mode') { reportMode = b.dataset.mode; render(); }
     else if (act === 'pin-clear') { if (confirm('إلغاء PIN؟')) { S().clearPin(); toast('أُلغي PIN'); render(); } }
+    else if (act === 'aikey-clear') { if (confirm('مسح مفتاح الذكاء الاصطناعي؟ الشات الحي هيقفل.')) { st.settings.aiKey = ''; S().save(); toast('مسيحات المفتاح'); render(); } }
     else if (act === 'notif') {
       if (window.Notification) Notification.requestPermission().then(p => { toast(p === 'granted' ? 'التنبيهات مفعّلة 🔔' : 'رفضت التنبيهات — لا بأس، تنبيهات التطبيق الداخلية موجودة'); render(); });
       else toast('المتصفح لا يدعم التنبيهات — استخدم تنبيهات التطبيق الداخلية');
@@ -603,6 +662,14 @@
       S().save(); toast('حُفظت النسب'); render();
     }
     else if (f.dataset.form === 'pin') { S().setPin(String(fd.get('pin')).trim()); toast('حُفظ PIN'); render(); }
+    else if (f.dataset.form === 'aikey') { const k = String(fd.get('aiKey') || '').trim(); if (!k) return toast('حط المفتاح الأول'); st.settings.aiKey = k; S().save(); toast('المفتاح على جهازك ✅ — افتح عقل الموقع وكلمه'); render(); }
+    else if (f.dataset.form === 'ai-chat') {
+      const q = String(fd.get('q') || '').trim(); if (!q) return;
+      aiChat.push({ role: 'user', text: q });
+      const out = $('#aiChatOut'); if (out) out.innerHTML = chatHtml('<p class="empty">… العقل بيفكر</p>');
+      aiCall(q).then(txt => { aiChat.push({ role: 'assistant', text: txt }); render(); })
+        .catch(err => { toast('تعذر الرد: ' + err.message); render(); });
+    }
     else if (f.dataset.form === 'goal-deposit') { /* أعلاه */ }
     else if (f.dataset.mini) {
       const txt = String(fd.get('txt') || '').trim(); if (!txt) return;

@@ -335,7 +335,11 @@
   function clearPin() { state.settings.pin = ''; save(); }
 
   /* ---------- تصدير/استيراد ---------- */
-  function exportJSON() { return JSON.stringify(state, null, 2); }
+  function exportJSON() {
+    // المفتاح الذكي خاص — ما يتحملش في ملفات النسخ الاحتياطية
+    const copy = Object.assign({}, state, { settings: Object.assign({}, state.settings, { aiKey: undefined }) });
+    return JSON.stringify(copy, null, 2);
+  }
   function importJSON(text) {
     const obj = JSON.parse(text);
     if (!obj || typeof obj !== 'object' || !Array.isArray(obj.tx) || !obj.settings)

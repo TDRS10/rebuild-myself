@@ -187,4 +187,12 @@ ok('عقل الموقع: حلل ويرتّب ويقترح', () => {
   assert.ok(warnIdx === -1 || goodIdx === -1 || warnIdx < goodIdx, 'التحذيرات الأول');
 });
 
+
+// 17) الشات الذكي: المفتاح ما ينشرش في التصدير
+ok('التصدير ما بيحملش مفتاح الذكاء الاصطناعي', () => {
+  Store.state.settings.aiKey = "sk-or-v1-TESTKEY";
+  assert.ok(!Store.exportJSON().includes("TESTKEY"), "المفتاح ظهر في التصدير!");
+  eq(Store.state.settings.aiKey, "sk-or-v1-TESTKEY", "المفتاح نفسه لسه محفوظ");
+  Store.state.settings.aiKey = "";
+});
 console.log('\nنجحت ' + pass + ' مجموعة اختبارات — المتاح: ' + Store.available() + '، المحفظة: ' + Store.wallet());
