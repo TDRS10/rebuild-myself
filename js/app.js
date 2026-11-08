@@ -7,7 +7,7 @@
   const fmt = n => (n || 0).toLocaleString('en-US') + ' ' + cur();
   const dFmt = ds => { try { return new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(ds + 'T12:00:00')); } catch (e) { return ds; } };
   const todayStr = () => S().today();
-  const ROUTES = ['home', 'mind', 'money', 'work', 'boundaries', 'goals', 'challenges', 'reports', 'settings'];
+  const ROUTES = ['home', 'mind', 'money', 'work', 'boundaries', 'goals', 'challenges', 'reports', 'settings', 'advice'];
   const DEFAULT_TASKS = ['اشرب كوب مياه إضافي', 'امشِ 5 دقائق في الهواء', 'رتّب جزءًا صغيرًا من غرفتك', 'اتصل بشخص يدعمك', 'سجّل مصروفًا واحدًا بوعي', 'خد 10 دقائق راحة من غير هاتف', 'اكتب سطرًا واحدًا في مذكراتك'];
   const GOAL_PRESETS = ['سداد الديون', 'تكوين صندوق طوارئ', 'شراء موتوسيكل', 'تطوير اللغة الإنجليزية', 'تطوير مهارات العمل', 'استكمال الدراسة', 'بناء مشروع شخصي'];
   const QUOTES = [
@@ -75,6 +75,7 @@
     </div>
     ${alerts.length ? '<h2 class="sec-title">تنبيهات اليوم</h2>' + alerts.map(a =>
       '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('') : ''}
+    ${(() => { const tip = S().advise()[0]; return tip ? '<a href="#/advice" class="card clickable" style="display:block;margin-bottom:4px"><h3>🧠 عقل الموقع</h3><p class="sub">' + esc(tip.title) + '</p></a>' : ''; })()}
     <h2 class="sec-title">حالتك الآن</h2>
     <div class="grid c2">
       <div class="card stat"><h3>حالتي النفسية اليوم</h3><span class="val">${rec.mood ? rec.mood + ' / 10' : '—'}</span><span class="sub">${rec.mood ? (rec.mood >= 7 ? 'يوم جيد، اغتنمه بهدوء' : rec.mood >= 4 ? 'يوم متوسط، خطوة صغيرة تكفي' : 'يوم صعب، الراحة أولوية') : 'لم تسجّل بعد'}</span></div>
@@ -96,6 +97,24 @@
       <a class="card clickable center" href="#/work">🛵<br>شغلي</a>
       <a class="card clickable center" href="#/challenges">🔥<br>التحديات</a>
     </div>`;
+  }
+
+  /* ========== صفحة: عقل الموقع ========== */
+  function vAdvice() {
+    const tips = S().advise();
+    const person = ['💸', '🛑', '🔍', '📉'].includes(tips[0].icon) ? 'فلوسك' :
+      ['💚', '✨', '🛌'].includes(tips[0].icon) ? 'حالتك النفسية' : 'شغلك وخطتك';
+    const top = `<div class="alert ${tips[0].level}" style="border-radius:16px;padding:16px">
+      <span style="font-size:1.6rem">${tips[0].icon}</span>
+      <span><strong style="display:block;margin-bottom:4px">${esc(tips[0].title)}</strong>${esc(tips[0].text)}</span></div>`;
+    const rest = tips.slice(1).map(x =>
+      '<div class="card" style="margin-bottom:10px"><h3>' + x.icon + ' ' + esc(x.title) + '</h3><p class="sub">' + esc(x.text) + '</p></div>').join('') || emptyList('ده كل اللي لاحظته النهارده.');
+    return `
+    <h2 class="page-title">🧠 عقل الموقع<small>اقتراحات مبنية على أرقامك انت بس — تحليل محلي على جهازك، لا سيرفر ولا بيانات بتخرج بره.</small></h2>
+    <p class="hint">قرأت: دخلك ومصروفك الشهري · ساعات شغلك الأسبوعية · مزاجك آخر 7 أيام · تحدياتك وأهدافك. <strong>${person}</strong> هي نقطة تركيز اليوم.</p>
+    ${top}
+    <h2 class="sec-title">ملاحظات كمان</h2>
+    ${rest}`;
   }
 
   /* ========== صفحة: استعادة نفسي ========== */
@@ -419,7 +438,7 @@
     <p>أداة شخصية لاستعادة التوازن النفسي والمالي والعملي. كل بياناتك في LocalStorage على جهازك — لا حساب، لا خادم، لا تتبّع. صدّر نسخة احتياطية بانتظام.</p></div>`;
   }
 
-  const VIEWS = { home: vHome, mind: vMind, money: vMoney, work: vWork, boundaries: vBoundaries, goals: vGoals, challenges: vChallenges, reports: vReports, settings: vSettings };
+  const VIEWS = { home: vHome, mind: vMind, money: vMoney, work: vWork, boundaries: vBoundaries, goals: vGoals, challenges: vChallenges, reports: vReports, settings: vSettings, advice: vAdvice };
 
   function wireLabels() {
     // ربط كل label بحقلها تلقائياً (a11y) — أرخص من إعادة هيكل كل نموذج بيدويًا
@@ -438,7 +457,7 @@
     const y = window.scrollY;
     $('#view').innerHTML = VIEWS[route]();
     $$('[data-route]').forEach(a => a.classList.toggle('active', a.dataset.route === route));
-    const moreIn = ['boundaries', 'goals', 'challenges', 'reports', 'settings'].includes(route);
+    const moreIn = ['boundaries', 'goals', 'challenges', 'reports', 'settings', 'advice'].includes(route);
     $('#moreBtn').classList.toggle('sheet-open', moreIn);
     closeSheet();
     window.scrollTo(0, y);

@@ -343,9 +343,54 @@
     replaceAll(obj);
   }
 
+  /* ---------- عقل الموقع: تحليل البيانات واقتراح شيء واحد ---------- */
+  function advise() {
+    const out = [], t = today(), st = state.settings;
+    const mr = monthRange(0), wr = weekRange(0);
+    const inc = income(mr.from, mr.to), exp = expenses(mr.from, mr.to);
+    const sav = savedBetween(mr.from, mr.to);
+    const wk = workTotals(workInRange(wr.from, wr.to));
+    const lastWk = workTotals(workInRange(addDays(wr.from, -7), addDays(wr.to, -7)));
+    const moods = []; for (let i = 0; i < 7; i++) { const r = state.daily[addDays(t, -i)]; if (r && r.mood > 0) moods.push(r.mood); }
+    const avgMood = moods.length ? moods.reduce((a, b) => a + b, 0) / moods.length : null;
+    const activeCh = CHALLENGES.map(c => challengeProgress(c)).filter(p => p && !p.broken && !p.done).length;
+    const goals = state.goals.filter(g => g.target > 0);
+
+    // مال
+    if (inc > 0) {
+      const spendPct = Math.round(exp / inc * 100), keepPct = 100 - spendPct;
+      if (spendPct > 85) out.push({ level: 'warn', icon: '💸', title: 'بتصرف أسرع من دخلك', text: 'مصرفك ' + spendPct + '% من دخلك الشهر ده. جرّب تأجيل أي مصروف مش أساسي 48 ساعة قبل قراره.' });
+      else if (sav > 0 && keepPct >= 40) out.push({ level: 'good', icon: '🌱', title: 'إيداعك ماشي صح', text: 'احتفظت بـ ' + keepPct + '% من دخلك الشهر ده. قسّم نفسك على نفس النسبة الشهر الجاي.' });
+    }
+    const byCat = spentByCat(mr.from, mr.to), topCat = Object.entries(byCat).sort((a, b) => b[1] - a[1])[0];
+    if (topCat && inc > 0 && (topCat[1] === exp)) {
+      const name = CATS[topCat[0]] || topCat[0];
+      out.push({ level: 'info', icon: '🔍', title: 'أكتر بند بياخد فلوسك: ' + name, text: 'عدّل متوسط هذا البند 10% بس — ده أسرع توفير بدون ما تحرم نفسك من حاجة.' });
+    }
+
+    // شغل
+    if (wk.hours >= 40) out.push({ level: 'warn', icon: '🛑', title: 'إسبوعك فوق المعدل', text: wk.hours + ' ساعة عمل هذا الأسبوع. يوم نصفه راحة بيحافظ على شهر كامل من الشغل.' });
+    else if (wk.orders > 0 && lastWk.orders > 0 && wk.net < lastWk.net * 0.8) out.push({ level: 'info', icon: '📉', title: 'صافي الأسبوع نازل عن الأسبوع الماضي', text: 'الفرق مش دايمًا جهد — راجع أوقات الذروة. ساعات أقل في وقت صح بتحسن الناتج.' });
+
+    // نفسي
+    if (avgMood !== null && moods.length >= 3) {
+      if (avgMood < 4) out.push({ level: 'warn', icon: '💚', title: 'حالتك النفسية محتاجة وقفة', text: 'متوسط آخر ' + moods.length + ' أيام ' + Math.round(avgMood * 10) / 10 + '/10. ابدأ بتحدي «اهتمام بالنفس» — خطوة واحدة في اليوم تكفي.' });
+      else if (avgMood >= 7) out.push({ level: 'good', icon: '✨', title: 'فترة نفسية كويسة', text: 'متوسط مزاجك ' + Math.round(avgMood * 10) / 10 + '/10. الفترات الصح دي هي وقت المراجعة والتحويش، مش وقت المخاطرة في صرف.' });
+    }
+
+    // تحديات وأهداف
+    if (!activeCh) out.push({ level: 'info', icon: '🔥', title: 'استفد من موتivaيتك الحالي', text: 'مفيش تحدي نشط. البدء بتحدي 7 أيام صغير تحط سلسلة تكمل من نفسها.' });
+    if (!goals.length) out.push({ level: 'info', icon: '🎯', title: 'مفيش هدف محدد', text: 'هدف واحد صغير بقيمة واضحة بيتحول من رغبة لطريق — ابدأ باصغر مبلغ ممكن توصل له.' });
+    if (!out.length) out.push({ level: 'good', icon: '🌿', title: 'الوضع متزن', text: 'أرقامك مستقرة. قاعدة اليوم: سجّل وواصل — لا تعدّل حاجة شغالة.' });
+
+    const rank = { warn: 0, info: 1, good: 2 };
+    return out.sort((a, b) => rank[a.level] - rank[b.level]).slice(0, 6);
+  }
+
   return {
     get state() { return state; },
     CATS, GROUPS, CHALLENGES,
+    advise,
     iso, today, addDays, daysBetween, weekRange, monthRange, uid, num, defaults,
     save, replaceAll, resetAll,
     addTx, delTx, txInRange, income, expenses, savedBetween, spentByCat, spentInGroup,

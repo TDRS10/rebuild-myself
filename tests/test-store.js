@@ -173,4 +173,18 @@ ok('حذف حركة مالية', () => {
   eq(Store.state.tx.length, n - 1, 'حُذفت');
 });
 
+// 16) عقل الموقع (advise)
+ok('عقل الموقع: حلل ويرتّب ويقترح', () => {
+  const tips = Store.advise();
+  assert.ok(Array.isArray(tips) && tips.length >= 1, 'بيطلع اقتراحات');
+  tips.forEach(x => assert.ok(x.level && x.icon && x.title && x.text, 'شكل الاقتراح سليم'));
+  assert.ok(tips[0].level === 'warn' || tips[0].level === 'info' || tips[0].level === 'good', 'مستوى معروف');
+  // تحذير مالي يطلع قبل الاقتراح الجيد
+  Store.addTx({ type: 'expense', amount: 9999, cat: 'other', date: T, note: 'تصرف كبير' });
+  const sorted = Store.advise();
+  const warnIdx = sorted.findIndex(x => x.level === 'warn');
+  const goodIdx = sorted.findIndex(x => x.level === 'good');
+  assert.ok(warnIdx === -1 || goodIdx === -1 || warnIdx < goodIdx, 'التحذيرات الأول');
+});
+
 console.log('\nنجحت ' + pass + ' مجموعة اختبارات — المتاح: ' + Store.available() + '، المحفظة: ' + Store.wallet());
