@@ -195,4 +195,14 @@ ok('التصدير ما بيحملش مفتاح الذكاء الاصطناعي'
   eq(Store.state.settings.aiKey, "sk-or-v1-TESTKEY", "المفتاح نفسه لسه محفوظ");
   Store.state.settings.aiKey = "";
 });
+
+// 18) أرقام النهارده (شاشة واحدة)
+ok('todayMoney: المتاح والمصروف وحصة الترفيه', () => {
+  const tm = Store.todayMoney();
+  assert.ok(tm.available === Store.available(), "المتاح لازم يطابق");
+  eq(tm.incomeToday, Store.income(T, T), "دخل النهارده يطابق السجل");
+  Store.addTx({ type: "expense", amount: 20, cat: "outings", date: T, note: "خروج" });
+  eq(Store.todayMoney().spentToday, Store.expenses(T, T), "مصروف النهارده يطابق السجل");
+  assert.ok(Store.todayMoney().outingLeft >= 0, "المتبقي لا يكون سالب");
+});
 console.log('\nنجحت ' + pass + ' مجموعة اختبارات — المتاح: ' + Store.available() + '، المحفظة: ' + Store.wallet());

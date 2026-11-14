@@ -83,6 +83,9 @@ a{color:inherit;text-decoration:none}
 .stat.gold .val{color:var(--gold)}
 .stat.green .val{color:var(--emerald)}
 .stat.blue .val{color:#7aa8dd}
+/* الرقم الكبير: معاك كام دلوقتي */
+.hero-money{text-align:center;padding:18px 14px;border-color:rgba(212,175,55,.35)}
+.hero-money .val{font-size:2.4rem;font-weight:900;color:var(--gold);letter-spacing:-1px}
 .card.clickable{cursor:pointer;transition:transform .15s,border-color .15s}
 .card.clickable:active{transform:scale(.98);border-color:var(--blue)}
 

@@ -51,9 +51,9 @@ function goto(route) {
   return els['#view'].innerHTML;
 }
 const expect = {
-  home: 'حالتك الآن', mind: 'استعادة نفسي', money: 'أموالي', work: 'شغلي',
+  home: 'معاك دلوقتي', mind: 'استعادة نفسي', money: 'أموالي', work: 'شغلي',
   boundaries: 'حدودي تحميني', goals: 'أهداف المستقبل', challenges: 'التحديات',
-  reports: 'التقارير', settings: 'الإعدادات'
+  reports: 'التقارير', settings: 'الإعدادات', advice: 'عقل الموقع'
 };
 for (const [route, marker] of Object.entries(expect)) {
   const html = goto(route);
@@ -67,7 +67,7 @@ sandbox.Store.saveWork({ date: sandbox.Store.today(), orders: 8, price: 15, bonu
 sandbox.Store.state.goals.push({ id: 'g1', name: 'شراء موتوسيكل', target: 500, deadline: '' });
 sandbox.Store.depositSaving(100, sandbox.Store.today(), 'للموتوسيكل', 'g1');
 sandbox.Store.save();
-assert.ok(goto('home').includes('رصيدي المتاح'), 'الرئيسية تعرض الرصيد بعد البيانات');
+assert.ok(goto('home').includes('معاك دلوقتي'), 'الرئيسية تعرض الرصيد بعد البيانات');
 assert.ok(goto('money').includes('محفظة التحويش'), 'صفحة الأموال تعرض المحفظة');
 assert.ok(goto('goals').includes('شراء موتوسيكل'), 'الأهداف تعرض الهدف الجديد');
 assert.ok(goto('work').includes('صافي اليوم'), 'صفحة الشغل تعرض الصافي');

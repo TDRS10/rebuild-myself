@@ -130,6 +130,23 @@
   // محفظة التحويش = إجمالي ما حُوّش (بما فيه الموجّه لأهداف)
   function wallet() { return state.tx.filter(t => t.type === 'saving').reduce((a, t) => a + t.amount, 0); }
 
+  /* ---------- أرقام النهارده (شاشة واحدة تجاوب: معاك كام؟) ---------- */
+  function todayMoney() {
+    const t = today();
+    const budget = state.settings.budgets.outings || state.pockets.fun;
+    const outingCap = budget > 0 ? Math.round(budget / 30) : 0;   // حصة اليوم من ميزانية الترفيه
+    const outingsToday = spentInGroup('fun', t, t);
+    const wt = workTotals(state.work.filter(x => x.date === t));
+    return {
+      available: available(),
+      incomeToday: sum(txInRange(t, t, 'income')),
+      spentToday: sum(txInRange(t, t, 'expense')),
+      savedToday: sum(txInRange(t, t, 'saving')),
+      outingCap, outingsToday, outingLeft: Math.max(0, outingCap - outingsToday),
+      orders: wt.orders, workNet: wt.net, hours: wt.hours
+    };
+  }
+
   /* ---------- الدخل والتقسيم التلقائي ---------- */
   // يضيف دخلًا + يحوّل نسب الادخار فورًا للتحويش + يسجّل مبالغ الاحتياج/الالتزامات/الترفيه للصرف
   function addIncome(amount, date, note, autoSplit) {
@@ -398,7 +415,7 @@
     iso, today, addDays, daysBetween, weekRange, monthRange, uid, num, defaults,
     save, replaceAll, resetAll,
     addTx, delTx, txInRange, income, expenses, savedBetween, spentByCat, spentInGroup,
-    available, wallet, addIncome, depositSaving, goalSaved,
+    available, wallet, todayMoney, addIncome, depositSaving, goalSaved,
     workNet, saveWork, delWork, workInRange, workTotals, workStreak, planStreak,
     goalProgress, goalsOverall, challengeProgress, startChallenge, stopChallenge, retryChallenge,
     projection, alerts, checkPin, setPin, clearPin, exportJSON, importJSON

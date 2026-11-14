@@ -59,44 +59,55 @@
 
   /* ========== صفحة: الرئيسية ========== */
   function vHome() {
-    const st = S().state, t = todayStr(), rec = st.daily[t] || {};
+    const t = todayStr(), tm = S().todayMoney();
     const mo = S().monthRange(0);
     const inc = S().income(mo.from, mo.to), exp = S().expenses(mo.from, mo.to);
-    const go = S().goalsOverall();
     const alerts = S().alerts();
-    const checkDays = Object.keys(st.daily).filter(d => st.daily[d].mood > 0).length;
+    const days = new Date().getDate();
+    const burn = days > 0 ? Math.round(exp / days) : 0;   // متوسط صرفك في اليوم الشهر ده
     const h = new Date().getHours();
     const greeting = h < 5 ? 'سهرة هادية؟' : h < 12 ? 'صباح الورد 🌅' : h < 17 ? 'يا نهار مرتب ☀️' : h < 22 ? 'مساء الخير 🌆' : 'ليلة هادية 🌙';
     return `
     <div class="hero">
       <p class="date">${esc(dFmt(t))} · ${greeting}</p>
       <p class="quote">💬 ${esc(quoteOfDay())}</p>
-      <button class="btn gold block" data-act="start-day">🌅 ابدأ يومك</button>
     </div>
-    ${alerts.length ? '<h2 class="sec-title">تنبيهات اليوم</h2>' + alerts.map(a =>
+    <div class="card stat hero-money">
+      <h3>معاك دلوقتي</h3>
+      <span class="val">${fmt(tm.available)}</span>
+      <span class="sub">دي فلوسك الحقيقية بعد اللي صرفته — من هنا بتصرف</span>
+    </div>
+    <div class="grid c3">
+      <div class="card stat"><h3>دخل النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.incomeToday)}</span></div>
+      <div class="card stat"><h3>مصروف النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.spentToday)}</span></div>
+      <div class="card stat green"><h3>حوّشت</h3><span class="val" style="font-size:1.1rem">${fmt(tm.savedToday)}</span></div>
+    </div>
+    <div class="card">
+      <h3>ترفيه النهارده</h3>
+      ${tm.outingCap > 0
+        ? bar(Math.round(tm.outingsToday / tm.outingCap * 100), 'gold') + '<p class="sub">' + fmt(tm.outingsToday) + ' من ' + fmt(tm.outingCap) + ' — باقي ' + fmt(tm.outingLeft) + ' قبل ما تقفل الباب على نفسك</p>'
+        : '<p class="hint">مفيش ميزانية ترفيه متسجلة — حددها من 💰 أموالي</p>'}
+    </div>
+    <div class="card">
+      <h3>طلبات النهارده</h3>
+      <p class="sub">${tm.orders} طلب · صافي ${fmt(tm.workNet)}${tm.hours ? ' · ' + tm.hours + ' ساعة' : ''}</p>
+      ${tm.orders === 0 ? '<p class="hint">لسه مفيش تسجيل — لو خلصت شغل، سجّل عشان يومك يبقى صح في الحساب.</p>' : ''}
+    </div>
+    ${alerts.length ? '<h2 class="sec-title">تنبيهات</h2>' + alerts.map(a =>
       '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('') : ''}
-    ${(() => { const tip = S().advise()[0]; return tip ? '<a href="#/advice" class="card clickable" style="display:block;margin-bottom:4px"><h3>🧠 عقل الموقع</h3><p class="sub">' + esc(tip.title) + '</p></a>' : ''; })()}
-    <h2 class="sec-title">حالتك الآن</h2>
-    <div class="grid c2">
-      <div class="card stat"><h3>حالتي النفسية اليوم</h3><span class="val">${rec.mood ? rec.mood + ' / 10' : '—'}</span><span class="sub">${rec.mood ? (rec.mood >= 7 ? 'يوم جيد، اغتنمه بهدوء' : rec.mood >= 4 ? 'يوم متوسط، خطوة صغيرة تكفي' : 'يوم صعب، الراحة أولوية') : 'لم تسجّل بعد'}</span></div>
-      <div class="card stat"><h3>رصيدي المتاح</h3><span class="val">${fmt(S().available())}</span><span class="sub">بعد خصم التحويش</span></div>
-      <div class="card stat green"><h3>إجمالي التحويش</h3><span class="val">${fmt(S().wallet())}</span><span class="sub">محفظة منفصلة عن مصروفك</span></div>
-      <div class="card stat blue"><h3>أيام الالتزام بالشغل</h3><span class="val">${S().workStreak()} يوم</span><span class="sub">سلسلة متتالية</span></div>
-      <div class="card stat"><h3>أيام التزامي بخطتي</h3><span class="val">${S().planStreak()} يوم</span><span class="sub">سجّلتَ حالتك ${checkDays} يومًا إجمالًا</span></div>
-      <div class="card stat gold"><h3>التقدّم نحو أهدافي</h3><span class="val">${go === null ? 'لا أهداف' : go + '%'}</span><span class="sub">${go === null ? 'أضف هدفًا من صفحة الأهداف' : 'متوسط إنجاز أهدافك'}</span>${go === null ? '' : bar(go, 'gold')}</div>
+    <h2 class="sec-title">سجّل في 10 ثواني</h2>
+    <div class="grid c3">
+      <a class="card clickable center" href="#/work">🛵<br>طلبات</a>
+      <a class="card clickable center" href="#/money">💸<br>مصروف</a>
+      <a class="card clickable center" href="#/money">💰<br>دخل</a>
     </div>
-    <h2 class="sec-title">هذا الشهر</h2>
+    <h2 class="sec-title">الشهر</h2>
     <div class="grid c3">
       <div class="card stat"><h3>الدخل</h3><span class="val" style="font-size:1.1rem">${fmt(inc)}</span></div>
       <div class="card stat"><h3>المصروف</h3><span class="val" style="font-size:1.1rem">${fmt(exp)}</span></div>
-      <div class="card stat"><h3>صافي الشهر</h3><span class="val" style="font-size:1.1rem">${fmt(inc - exp)}</span></div>
+      <div class="card stat"><h3>صافي</h3><span class="val" style="font-size:1.1rem">${fmt(inc - exp)}</span></div>
     </div>
-    <h2 class="sec-title">إجراءات سريعة</h2>
-    <div class="grid c3">
-      <a class="card clickable center" href="#/money">💰<br>أموالي</a>
-      <a class="card clickable center" href="#/work">🛵<br>شغلي</a>
-      <a class="card clickable center" href="#/challenges">🔥<br>التحديات</a>
-    </div>`;
+    ${burn > 0 ? '<div class="alert warn"><span>📉</span><span>بتصرف <strong>' + fmt(burn) + '</strong> في اليوم بمعدل الشهر ده — ده الرقم اللي بيقبض فلوسك. خلّيه أقل من يوم بدل يوم.</span></div>' : ''}`;
   }
 
   /* شبكة كلم العقل — مودلات مجانية بترتيب الأولوية، واحدة تقع نجرب اللي بعدها */
@@ -223,6 +234,22 @@
     const badge = t => t.type === 'income' ? '<span class="badge green">دخل</span>' : t.type === 'saving' ? '<span class="badge gold">تحويش</span>' : '<span class="badge blue">مصروف</span>';
     return `
     <h2 class="page-title">💰 أموالي وتحويشي<small>محفظة التحويش منفصلة — مش فلوس للصرف.</small></h2>
+    <details class="formbox" open><summary>➕ إضافة دخل (مع تقسيم تلقائي ${sp.save}/${sp.needs}/${sp.commitments}/${sp.fun})</summary>
+      <form data-form="income"><div class="row">
+      <div class="field"><label>المبلغ</label><input name="amount" type="number" min="1" step="any" required></div>
+      <div class="field"><label>التاريخ</label><input name="date" type="date" value="${todayStr()}" required></div>
+      <div class="field"><label>ملاحظة</label><input name="note" placeholder="راتب / شغل إضافي…" maxlength="60"></div></div>
+      <label class="check"><input type="checkbox" name="split" checked> قسّم تلقائيًا حسب النسب (الادخار يروح التحويش فورًا)</label>
+      <button class="btn primary block" type="submit">حفظ الدخل</button><p class="hint" data-split-info></p></form></details>
+
+    <details class="formbox" open><summary>➖ إضافة مصروف</summary>
+      <form data-form="expense"><div class="row">
+      <div class="field"><label>المبلغ</label><input name="amount" type="number" min="1" step="any" required></div>
+      <div class="field"><label>التصنيف</label><select name="cat">${Object.entries(S().CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+      <div class="field"><label>التاريخ</label><input name="date" type="date" value="${todayStr()}" required></div>
+      <div class="field"><label>ملاحظة</label><input name="note" placeholder="ليه؟" maxlength="60"></div></div>
+      <button class="btn block" type="submit">حفظ المصروف</button></form></details>
+
     <div class="grid c2">
       <div class="card stat"><h3>رصيدي المتاح</h3><span class="val">${fmt(S().available())}</span><span class="sub">دخل − مصروف − تحويش</span></div>
       <div class="card stat gold"><h3>محفظة التحويش 🐖</h3><span class="val">${fmt(S().wallet())}</span><span class="sub">لو مسحتها انسى الحلم 😉</span></div>
@@ -233,22 +260,6 @@
     </div>
     ${wb > 0 ? `<div class="alert ${outSpent >= wb ? 'warn' : 'info'}">🎉 خروجات هذا الشهر: ${fmt(outSpent)} من ${fmt(wb)} ${outSpent >= wb ? '— الميزانية خلصت! خفّف لحد آخر الشهر.' : ''}</div>` : ''}
     <div class="alert info">⚠️ أي مصروف ≥ ${fmt(st.settings.bigExpense)} سيطلب تأكيدًا قبل الحفظ.</div>
-
-    <details class="formbox" open><summary>➕ إضافة دخل (مع تقسيم تلقائي ${sp.save}/${sp.needs}/${sp.commitments}/${sp.fun})</summary>
-      <form data-form="income"><div class="row">
-      <div class="field"><label>المبلغ</label><input name="amount" type="number" min="1" step="any" required></div>
-      <div class="field"><label>التاريخ</label><input name="date" type="date" value="${todayStr()}" required></div>
-      <div class="field"><label>ملاحظة</label><input name="note" placeholder="راتب / شغل إضافي…" maxlength="60"></div></div>
-      <label class="check"><input type="checkbox" name="split" checked> قسّم تلقائيًا حسب النسب (الادخار يروح التحويش فورًا)</label>
-      <button class="btn primary block" type="submit">حفظ الدخل</button><p class="hint" data-split-info></p></form></details>
-
-    <details class="formbox"><summary>➖ إضافة مصروف</summary>
-      <form data-form="expense"><div class="row">
-      <div class="field"><label>المبلغ</label><input name="amount" type="number" min="1" step="any" required></div>
-      <div class="field"><label>التصنيف</label><select name="cat">${Object.entries(S().CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
-      <div class="field"><label>التاريخ</label><input name="date" type="date" value="${todayStr()}" required></div>
-      <div class="field"><label>ملاحظة</label><input name="note" placeholder="ليه؟" maxlength="60"></div></div>
-      <button class="btn block" type="submit">حفظ المصروف</button></form></details>
 
     <details class="formbox"><summary>🐖 إيداع في التحويش</summary>
       <form data-form="saving"><div class="row">
