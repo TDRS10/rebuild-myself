@@ -72,40 +72,43 @@
       <p class="date">${esc(dFmt(t))} · ${greeting}</p>
       <p class="quote">💬 ${esc(quoteOfDay())}</p>
     </div>
+    <h2 class="sec-title">النهارده</h2>
     <div class="card stat hero-money">
       <h3>معاك دلوقتي</h3>
       <span class="val">${fmt(tm.available)}</span>
       <span class="sub">دي فلوسك الحقيقية بعد اللي صرفته — من هنا بتصرف</span>
     </div>
-    <div class="grid c3">
+    <div class="grid three">
       <div class="card stat"><h3>دخل النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.incomeToday)}</span></div>
       <div class="card stat"><h3>مصروف النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.spentToday)}</span></div>
       <div class="card stat green"><h3>حوّشت</h3><span class="val" style="font-size:1.1rem">${fmt(tm.savedToday)}</span></div>
     </div>
-    <div class="card">
-      <h3>ترفيه النهارده</h3>
-      ${tm.outingCap > 0
-        ? bar(Math.round(tm.outingsToday / tm.outingCap * 100), 'gold') + '<p class="sub">' + fmt(tm.outingsToday) + ' من ' + fmt(tm.outingCap) + ' — باقي ' + fmt(tm.outingLeft) + ' قبل ما تقفل الباب على نفسك</p>'
-        : '<p class="hint">مفيش ميزانية ترفيه متسجلة — حددها من 💰 أموالي</p>'}
-    </div>
-    <div class="card">
-      <h3>طلبات النهارده</h3>
-      <p class="sub">${tm.orders} طلب · صافي ${fmt(tm.workNet)}${tm.hours ? ' · ' + tm.hours + ' ساعة' : ''}</p>
-      ${tm.orders === 0 ? '<p class="hint">لسه مفيش تسجيل — لو خلصت شغل، سجّل عشان يومك يبقى صح في الحساب.</p>' : ''}
+    <div class="grid c2">
+      <div class="card">
+        <h3>ترفيه النهارده</h3>
+        ${tm.outingCap > 0
+          ? bar(Math.round(tm.outingsToday / tm.outingCap * 100), 'gold') + '<p class="sub">' + fmt(tm.outingsToday) + ' من ' + fmt(tm.outingCap) + ' — باقي ' + fmt(tm.outingLeft) + '</p>'
+          : '<p class="hint">مفيش ميزانية ترفيه — حددها من 💰 أموالي</p>'}
+      </div>
+      <div class="card">
+        <h3>طلبات النهارده</h3>
+        <p class="sub">${tm.orders} طلب · صافي ${fmt(tm.workNet)}${tm.hours ? ' · ' + tm.hours + ' ساعة' : ''}</p>
+        ${tm.orders === 0 ? '<p class="hint">لسه مفيش تسجيل — لو خلصت شغل، سجّل.</p>' : ''}
+      </div>
     </div>
     ${alerts.length ? '<h2 class="sec-title">تنبيهات</h2>' + alerts.map(a =>
       '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('') : ''}
     <h2 class="sec-title">سجّل في 10 ثواني</h2>
-    <div class="grid c3">
+    <div class="grid three">
       <a class="card clickable center" href="#/work">🛵<br>طلبات</a>
       <a class="card clickable center" href="#/money">💸<br>مصروف</a>
       <a class="card clickable center" href="#/money">💰<br>دخل</a>
     </div>
     <h2 class="sec-title">الشهر</h2>
-    <div class="grid c3">
-      <div class="card stat"><h3>الدخل</h3><span class="val" style="font-size:1.1rem">${fmt(inc)}</span></div>
-      <div class="card stat"><h3>المصروف</h3><span class="val" style="font-size:1.1rem">${fmt(exp)}</span></div>
-      <div class="card stat"><h3>صافي</h3><span class="val" style="font-size:1.1rem">${fmt(inc - exp)}</span></div>
+    <div class="grid three">
+      <div class="card stat"><h3>الدخل</h3><span class="val" style="font-size:1.05rem">${fmt(inc)}</span></div>
+      <div class="card stat"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span></div>
+      <div class="card stat"><h3>صافي</h3><span class="val" style="font-size:1.05rem">${fmt(inc - exp)}</span></div>
     </div>
     ${burn > 0 ? '<div class="alert warn"><span>📉</span><span>بتصرف <strong>' + fmt(burn) + '</strong> في اليوم بمعدل الشهر ده — ده الرقم اللي بيقبض فلوسك. خلّيه أقل من يوم بدل يوم.</span></div>' : ''}`;
   }
@@ -295,7 +298,7 @@
     const list = [...st.work].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
     return `
     <h2 class="page-title">🛵 شغلي وطلبات<small>طلبات Talabat — من غير إرهاق. الألم إشارة للتوقف، مش للتحمّل.</small></h2>
-    <div class="grid c3">
+    <div class="grid three">
       <div class="card stat"><h3>صافي اليوم</h3><span class="val">${fmt(tt.net)}</span></div>
       <div class="card stat"><h3>طلبات اليوم</h3><span class="val">${tt.orders || 0}</span></div>
       <div class="card stat blue"><h3>ساعات اليوم</h3><span class="val">${th || 0} س</span></div>
