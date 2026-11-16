@@ -108,6 +108,23 @@ a{color:inherit;text-decoration:none}
   font-size:5rem;color:rgba(212,175,55,.04);
 }
 .hero .quote{font-size:.88rem;font-weight:600;margin:6px 0 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+/* هيدر نحيف: تاريخ + تحية فقط (الرقم الفلوسي هو البطل) */
+.hero.slim{padding:10px 14px;margin-bottom:10px;
+  background:linear-gradient(150deg,rgba(28,44,71,.8),rgba(17,23,34,.88));
+  backdrop-filter:blur(8px)}
+.hero.slim .date{font-size:.85rem;color:var(--text);font-weight:700}
+.hero.slim::after{display:none}
+/* سطر الاقتباس تحت الصفحة */
+.quote-foot{text-align:center;color:var(--muted);font-size:.78rem;margin:16px 6px 4px;opacity:.8}
+/* أزرار التسجيل: صف واحد نحيف */
+.act-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.act-row a{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 6px;border-radius:14px;font-weight:700;font-size:.9rem;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);
+  transition:transform .15s,background .15s;
+}
+.act-row a:active{transform:scale(.97);background:rgba(16,185,129,.14)}
 .hero .date{font-size:.75rem;color:var(--muted)}
 
 /* ===== Buttons ===== */

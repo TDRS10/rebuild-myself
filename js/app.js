@@ -65,14 +65,13 @@
     const alerts = S().alerts();
     const days = new Date().getDate();
     const burn = days > 0 ? Math.round(exp / days) : 0;   // متوسط صرفك في اليوم الشهر ده
+    const runway = burn > 0 ? Math.floor(tm.available / burn) : null;  // رصيدك كام يوم
     const h = new Date().getHours();
     const greeting = h < 5 ? 'سهرة هادية؟' : h < 12 ? 'صباح الورد 🌅' : h < 17 ? 'يا نهار مرتب ☀️' : h < 22 ? 'مساء الخير 🌆' : 'ليلة هادية 🌙';
     return `
-    <div class="hero">
+    <div class="hero slim">
       <p class="date">${esc(dFmt(t))} · ${greeting}</p>
-      <p class="quote">💬 ${esc(quoteOfDay())}</p>
     </div>
-    <h2 class="sec-title">النهارده</h2>
     <div class="card stat hero-money">
       <h3>معاك دلوقتي</h3>
       <span class="val">${fmt(tm.available)}</span>
@@ -96,21 +95,22 @@
         ${tm.orders === 0 ? '<p class="hint">لسه مفيش تسجيل — لو خلصت شغل، سجّل.</p>' : ''}
       </div>
     </div>
-    ${alerts.length ? '<h2 class="sec-title">تنبيهات</h2>' + alerts.map(a =>
-      '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('') : ''}
-    <h2 class="sec-title">سجّل في 10 ثواني</h2>
-    <div class="grid three">
-      <a class="card clickable center" href="#/work">🛵<br>طلبات</a>
-      <a class="card clickable center" href="#/money">💸<br>مصروف</a>
-      <a class="card clickable center" href="#/money">💰<br>دخل</a>
+    ${alerts.map(a =>
+      '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('')}
+    ${tm.available < 0 ? '<div class="alert warn"><span>🚨</span><span>رصيدك سالب — الصرف بدأ ياخد من فلوسك. المقبس بيضغط.</span></div>' : ''}
+    ${runway !== null && runway >= 0 && runway <= 7 ? '<div class="alert warn"><span>📉</span><span>بمعدل صرفك، رصيدك يكفي <strong>' + runway + ' يوم</strong> بس. خفّف الصرف دلوقتي مش بعدين.</span></div>' : ''}
+    <div class="act-row">
+      <a href="#/work">🛵 طلبات</a>
+      <a href="#/money" data-jump="expense">💸 مصروف</a>
+      <a href="#/money" data-jump="income">💰 دخل</a>
     </div>
     <h2 class="sec-title">الشهر</h2>
     <div class="grid three">
       <div class="card stat"><h3>الدخل</h3><span class="val" style="font-size:1.05rem">${fmt(inc)}</span></div>
-      <div class="card stat"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span></div>
+      <div class="card stat"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span>${burn > 0 ? '<span class="sub">' + fmt(burn) + ' في اليوم</span>' : ''}</div>
       <div class="card stat"><h3>صافي</h3><span class="val" style="font-size:1.05rem">${fmt(inc - exp)}</span></div>
     </div>
-    ${burn > 0 ? '<div class="alert warn"><span>📉</span><span>بتصرف <strong>' + fmt(burn) + '</strong> في اليوم بمعدل الشهر ده — ده الرقم اللي بيقبض فلوسك. خلّيه أقل من يوم بدل يوم.</span></div>' : ''}`;
+    <p class="quote-foot">💬 ${esc(quoteOfDay())}</p>`;
   }
 
   /* شبكة كلم العقل — مودلات مجانية بترتيب الأولوية، واحدة تقع نجرب اللي بعدها */
@@ -523,6 +523,8 @@
     });
   }
 
+  let pendingJump = null;   // يفتح نموذج معيّن بعد الانتقال (مصروف/دخل)
+
   function render() {
     const hash = location.hash.replace('#/', '') || 'home';
     const route = ROUTES.includes(hash) ? hash : 'home';
@@ -535,7 +537,19 @@
     window.scrollTo(0, y);
     requestAnimationFrame(() => window.scrollTo(0, y));
     wireLabels();
+    if (pendingJump) {
+      const f = document.querySelector('[data-form="' + pendingJump + '"]');
+      pendingJump = null;
+      if (f) {
+        const d = f.closest('details'); if (d) d.open = true;
+        setTimeout(() => f.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+      }
+    }
   }
+  document.addEventListener('click', e => {
+    const j = e.target.closest('[data-jump]');
+    if (j) pendingJump = j.dataset.jump;
+  });
 
   /* ورقة «المزيد» */
   function closeSheet() { const s = $('#moreSheet'); if (s) s.hidden = true; }
