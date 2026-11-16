@@ -78,21 +78,21 @@
       <span class="sub">دي فلوسك الحقيقية بعد اللي صرفته — من هنا بتصرف</span>
     </div>
     <div class="grid three">
-      <div class="card stat"><h3>دخل النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.incomeToday)}</span></div>
-      <div class="card stat"><h3>مصروف النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.spentToday)}</span></div>
-      <div class="card stat green"><h3>حوّشت</h3><span class="val" style="font-size:1.1rem">${fmt(tm.savedToday)}</span></div>
+      <div class="card stat green"><h3>دخل النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.incomeToday)}</span></div>
+      <div class="card stat red"><h3>مصروف النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.spentToday)}</span></div>
+      <div class="card stat gold"><h3>حوّشت</h3><span class="val" style="font-size:1.1rem">${fmt(tm.savedToday)}</span></div>
     </div>
     <div class="grid c2">
-      <div class="card">
+      <div class="card stat blue">
         <h3>ترفيه النهارده</h3>
-        ${tm.outingCap > 0
-          ? bar(Math.round(tm.outingsToday / tm.outingCap * 100), 'gold') + '<p class="sub">' + fmt(tm.outingsToday) + ' من ' + fmt(tm.outingCap) + ' — باقي ' + fmt(tm.outingLeft) + '</p>'
-          : '<p class="hint">مفيش ميزانية ترفيه — حددها من 💰 أموالي</p>'}
+        <span class="val">${tm.outingCap > 0 ? fmt(tm.outingLeft) : '0'}</span>
+        <span class="sub">${tm.outingCap > 0 ? 'باقي من ' + fmt(tm.outingCap) + ' · صرفته ' + fmt(tm.outingsToday) : 'مفيش ميزانية ترفيه — حددها من 💰 أموالي'}</span>
+        ${tm.outingCap > 0 ? bar(Math.round(tm.outingsToday / tm.outingCap * 100), 'gold') : ''}
       </div>
-      <div class="card">
+      <div class="card stat green">
         <h3>طلبات النهارده</h3>
-        <p class="sub">${tm.orders} طلب · صافي ${fmt(tm.workNet)}${tm.hours ? ' · ' + tm.hours + ' ساعة' : ''}</p>
-        ${tm.orders === 0 ? '<p class="hint">لسه مفيش تسجيل — لو خلصت شغل، سجّل.</p>' : ''}
+        <span class="val">${tm.orders}</span>
+        <span class="sub">صافي ${fmt(tm.workNet)}${tm.hours ? ' · ' + tm.hours + ' ساعة' : ''}${tm.orders === 0 ? ' · لسه مفيش تسجيل' : ''}</span>
       </div>
     </div>
     ${alerts.map(a =>
@@ -106,9 +106,9 @@
     </div>
     <h2 class="sec-title">الشهر</h2>
     <div class="grid three">
-      <div class="card stat"><h3>الدخل</h3><span class="val" style="font-size:1.05rem">${fmt(inc)}</span></div>
-      <div class="card stat"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span>${burn > 0 ? '<span class="sub">' + fmt(burn) + ' في اليوم</span>' : ''}</div>
-      <div class="card stat"><h3>صافي</h3><span class="val" style="font-size:1.05rem">${fmt(inc - exp)}</span></div>
+      <div class="card stat green"><h3>الدخل</h3><span class="val" style="font-size:1.05rem">${fmt(inc)}</span></div>
+      <div class="card stat red"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span>${burn > 0 ? '<span class="sub">' + fmt(burn) + ' في اليوم</span>' : ''}</div>
+      <div class="card stat gold"><h3>صافي</h3><span class="val" style="font-size:1.05rem">${fmt(inc - exp)}</span></div>
     </div>
     <p class="quote-foot">💬 ${esc(quoteOfDay())}</p>`;
   }
