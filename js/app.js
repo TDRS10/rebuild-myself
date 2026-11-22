@@ -100,9 +100,9 @@
     ${tm.available < 0 ? '<div class="alert warn"><span>🚨</span><span>رصيدك سالب — الصرف بدأ ياخد من فلوسك. المقبس بيضغط.</span></div>' : ''}
     ${runway !== null && runway >= 0 && runway <= 7 ? '<div class="alert warn"><span>📉</span><span>بمعدل صرفك، رصيدك يكفي <strong>' + runway + ' يوم</strong> بس. خفّف الصرف دلوقتي مش بعدين.</span></div>' : ''}
     <div class="act-row">
-      <a href="#/work">🛵 طلبات</a>
-      <a href="#/money" data-jump="expense">💸 مصروف</a>
-      <a href="#/money" data-jump="income">💰 دخل</a>
+      <a href="#/work"><svg class="ic"><use href="#ic-bike"/></svg> طلبات</a>
+      <a href="#/money" data-jump="expense"><svg class="ic"><use href="#ic-receipt"/></svg> مصروف</a>
+      <a href="#/money" data-jump="income"><svg class="ic"><use href="#ic-plus"/></svg> دخل</a>
     </div>
     <h2 class="sec-title">الشهر</h2>
     <div class="grid three">
@@ -163,7 +163,7 @@
     const rest = tips.slice(1).map(x =>
       '<div class="card" style="margin-bottom:10px"><h3>' + x.icon + ' ' + esc(x.title) + '</h3><p class="sub">' + esc(x.text) + '</p></div>').join('') || emptyList('ده كل اللي لاحظته النهارده.');
     return `
-    <h2 class="page-title">🧠 عقل الموقع<small>اقتراحات مبنية على أرقامك انت بس — تحليل محلي على جهازك، لا سيرفر ولا بيانات بتخرج بره.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-brain"/></svg> عقل الموقع<small>اقتراحات مبنية على أرقامك انت بس — تحليل محلي على جهازك، لا سيرفر ولا بيانات بتخرج بره.</small></h2>
     <p class="hint">قرأت: دخلك ومصروفك الشهري · ساعات شغلك الأسبوعية · مزاجك آخر 7 أيام · تحدياتك وأهدافك. <strong>${person}</strong> هي نقطة تركيز اليوم.</p>
     ${top}
     <h2 class="sec-title">ملاحظات كمان</h2>
@@ -191,7 +191,7 @@
       ${items.length ? '<ul class="list">' + items.map((x, i) => `<li><span>${esc(x)}</span><button class="del" data-act="mind-del" data-key="${key}" data-i="${i}">🗑</button></li>`).join('') + '</ul>' : emptyList('لا شيء بعد.')}`;
     const tasks = [...DEFAULT_TASKS, ...S().state.customTasks.map(x => x.text)];
     return `
-    <h2 class="page-title">💚 استعادة نفسي<small>تتبّع يومي بهدوء — لا تقييم ولا لوم، مجرد ملاحظة.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-heart"/></svg> استعادة نفسي<small>تتبّع يومي بهدوء — لا تقييم ولا لوم، مجرد ملاحظة.</small></h2>
     <div class="card" style="margin-bottom:12px">
       <div class="row" style="align-items:center">
         <button class="btn sm" data-act="mind-prev">‹ اليوم السابق</button>
@@ -236,7 +236,7 @@
     const txDesc = [...st.tx].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).slice(0, 40);
     const badge = t => t.type === 'income' ? '<span class="badge green">دخل</span>' : t.type === 'saving' ? '<span class="badge gold">تحويش</span>' : '<span class="badge blue">مصروف</span>';
     return `
-    <h2 class="page-title">💰 أموالي وتحويشي<small>محفظة التحويش منفصلة — مش فلوس للصرف.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-wallet"/></svg> أموالي وتحويشي<small>محفظة التحويش منفصلة — مش فلوس للصرف.</small></h2>
     <details class="formbox" open><summary>➕ إضافة دخل (مع تقسيم تلقائي ${sp.save}/${sp.needs}/${sp.commitments}/${sp.fun})</summary>
       <form data-form="income"><div class="row">
       <div class="field"><label>المبلغ</label><input name="amount" type="number" min="1" step="any" required></div>
@@ -297,7 +297,7 @@
     const tier = (h, label) => `<div class="tier ${th >= h ? 'done' : ''}"><span>${th >= h ? '✅' : '⬜'} ${label}</span><span class="small">${h} ساعات</span></div>`;
     const list = [...st.work].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
     return `
-    <h2 class="page-title">🛵 شغلي وطلبات<small>طلبات Talabat — من غير إرهاق. الألم إشارة للتوقف، مش للتحمّل.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-bike"/></svg> شغلي وطلبات<small>طلبات Talabat — من غير إرهاق. الألم إشارة للتوقف، مش للتحمّل.</small></h2>
     <div class="grid three">
       <div class="card stat"><h3>صافي اليوم</h3><span class="val">${fmt(tt.net)}</span></div>
       <div class="card stat"><h3>طلبات اليوم</h3><span class="val">${tt.orders || 0}</span></div>
@@ -343,7 +343,7 @@
     const st = S().state;
     const yn = (k, label) => `<div class="field"><label>${label}</label><select name="${k}"><option value="">—</option><option value="yes">أيوه</option><option value="no">لأ</option></select></div>`;
     return `
-    <h2 class="page-title">🛡️ حدودي تحميني<small>ملاحظة مواقفك بهدوء — من غير حكم على حد، ومن غير افتراض نوايا.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-shield"/></svg> حدودي تحميني<small>ملاحظة مواقفك بهدوء — من غير حكم على حد، ومن غير افتراض نوايا.</small></h2>
     <div class="note-card"><h3>تذكير لنفسي</h3>
     <p>الحب لا يعني الاستدانة، ولا إهمال النفس، ولا كسر الخطة المالية من أجل خروجة. حدودي مش قسوة — حدودي أمان.</p></div>
     <details class="formbox" open><summary>📝 تسجيل موقف سبّب ضغطًا</summary>
@@ -371,7 +371,7 @@
   function vGoals() {
     const st = S().state, go = S().goalsOverall();
     return `
-    <h2 class="page-title">🎯 أهداف المستقبل<small>أهداف قابلة للقياس — مبلغ مستهدف ومحفوظ وموعد اختياري.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-target"/></svg> أهداف المستقبل<small>أهداف قابلة للقياس — مبلغ مستهدف ومحفوظ وموعد اختياري.</small></h2>
     ${go !== null ? `<div class="card stat gold" style="margin-bottom:12px"><h3>التقدّم العام</h3><span class="val">${go}%</span>${bar(go, 'gold')}</div>` : ''}
     <details class="formbox" open><summary>➕ هدف جديد</summary>
       <form data-form="goal"><div class="row">
@@ -397,7 +397,7 @@
   function vChallenges() {
     const st = S().state;
     return `
-    <h2 class="page-title">🔥 نظام التحديات<small>ابدأ، توقف، أو أعِد المحاولة — من غير عقاب ومن غير لوم.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-flame"/></svg> نظام التحديات<small>ابدأ، توقف، أو أعِد المحاولة — من غير عقاب ومن غير لوم.</small></h2>
     ${S().CHALLENGES.map(def => {
       const c = st.challenges[def.id], p = S().challengeProgress(def);
       const status = !c ? ['muted', 'لم يبدأ'] : c.status === 'stopped' ? ['red', 'متوقف'] : p && p.done ? ['green', '🏆 أتممته!'] : p && p.broken ? ['red', 'انقطع — عيد من جديد بهدوء'] : ['gold', 'نشط'];
@@ -426,7 +426,7 @@
     const w = S().workTotals(S().workInRange(r.from, r.to));
     const projRow = (label, o) => `<li><span>${label}</span><span>${o ? `<span class="badge red">متحفظ ${fmt(o.conservative)}</span> <span class="badge gold">متوسط ${fmt(o.medium)}</span> <span class="badge green">متفائل ${fmt(o.optimistic)}</span>` : '—'}</span></li>`;
     return `
-    <h2 class="page-title">📊 التقارير<small>بناءً على أرقامك المسجّلة فقط — لا أرقام وهمية.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-chart"/></svg> التقارير<small>بناءً على أرقامك المسجّلة فقط — لا أرقام وهمية.</small></h2>
     <div class="tabs">
       <button class="btn sm ${isW ? 'active' : ''}" data-act="rep-mode" data-mode="week">أسبوعي</button>
       <button class="btn sm ${isW ? '' : 'active'}" data-act="rep-mode" data-mode="month">شهري</button>
@@ -455,7 +455,7 @@
     const st = S().state, s = st.settings;
     const notif = window.Notification ? Notification.permission : 'unsupported';
     return `
-    <h2 class="page-title">⚙️ الإعدادات<small>بياناتك على جهازك فقط — لا تُرسل لأي خادم.</small></h2>
+    <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-settings"/></svg> الإعدادات<small>بياناتك على جهازك فقط — لا تُرسل لأي خادم.</small></h2>
     <div class="card" style="margin-bottom:12px"><form data-form="currency"><div class="row">
       <div class="field"><label>العملة</label><input name="currency" value="${esc(s.currency)}" maxlength="8" required></div>
       <div class="field" style="align-self:end"><button class="btn sm" type="submit">💾 حفظ</button></div></div></form></div>
