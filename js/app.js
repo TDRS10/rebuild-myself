@@ -76,6 +76,7 @@
       <h3>معاك دلوقتي</h3>
       <span class="val">${fmt(tm.available)}</span>
       <span class="sub">دي فلوسك الحقيقية بعد اللي صرفته — من هنا بتصرف</span>
+      <span class="sub allowance">مسموح لك <strong>${fmt(S().dailyAllowance().perDay)}</strong> في اليوم · باقي ${S().dailyAllowance().daysLeft} يوم لحد الراتب (يوم ${S().dailyAllowance().payday})</span>
     </div>
     <div class="grid three">
       <div class="card stat green"><h3>دخل النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.incomeToday)}</span></div>
@@ -459,6 +460,13 @@
     <div class="card" style="margin-bottom:12px"><form data-form="currency"><div class="row">
       <div class="field"><label>العملة</label><input name="currency" value="${esc(s.currency)}" maxlength="8" required></div>
       <div class="field" style="align-self:end"><button class="btn sm" type="submit">💾 حفظ</button></div></div></form></div>
+    <div class="card">
+      <p class="hint">يوم الراتب — بنحسب منه «المسموح لك تصرفه في اليوم» في الصفحة الرئيسية.</p>
+      <form data-form="payday" style="display:flex;gap:8px;margin-top:8px">
+        <div class="field"><label>يوم الراتب من الشهر (1–28)</label><input name="payday" type="number" min="1" max="28" value="${s.payday || 1}" required></div>
+        <div class="field" style="align-self:end"><button class="btn sm" type="submit">💾 حفظ</button></div>
+      </form>
+    </div>
     <details class="formbox" open><summary>⚖️ نسب تقسيم الدخل (المجموع 100%)</summary>
       <form data-form="splits"><div class="row">
       <div class="field"><label>ادخار وديون %</label><input name="save" type="number" min="0" max="100" value="${s.splits.save}"></div>
@@ -683,6 +691,7 @@
       toast('أُضيف للهدف 🐖'); render();
     }
     else if (f.dataset.form === 'currency') { st.settings.currency = String(fd.get('currency') || 'ج.م'); S().save(); toast('حُفظت العملة'); render(); }
+    else if (f.dataset.form === 'payday') { st.settings.payday = Math.max(1, Math.min(28, n('payday') || 1)); S().save(); toast('اتحدّد يوم الراتب 💰'); render(); }
     else if (f.dataset.form === 'splits') {
       const sum = n('save') + n('needs') + n('commitments') + n('fun');
       if (sum !== 100) return toast('النسب لازم مجموعها 100% (الحالي ' + sum + ')');

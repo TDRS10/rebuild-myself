@@ -114,6 +114,7 @@ a{color:inherit;text-decoration:none}
 .hero-money h3{font-size:.78rem;color:rgba(212,175,55,.85)}
 .hero-money .val{font-size:2.1rem;font-weight:900;color:var(--gold);letter-spacing:-1px;line-height:1.15;margin:2px 0}
 .hero-money .sub{font-size:.7rem}
+.hero-money .allowance{color:var(--gold);font-weight:600;margin-top:2px}
 .card.clickable{cursor:pointer;transition:transform .15s,border-color .15s}
 .card.clickable:active{transform:scale(.98);border-color:var(--blue)}
 

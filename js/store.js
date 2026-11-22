@@ -58,6 +58,7 @@
         splits: { save: 40, needs: 35, commitments: 15, fun: 10 },
         budgets: { outings: 0 },          // ميزانية الخروجات الشهرية، 0 = غير محددة
         bigExpense: 500,                  // تحذير قبل المصروف الكبير
+        payday: 1,                        // يوم الراتب من كل شهر (1–28)
         limits: { spend: 0, gift: 0 },    // حدودي الشخصية للمصروف والهدايا
         pin: ''                           // PIN اختياري (اختصار: مخزّن محليًا كنص، حماية للعرض لا أمان حقيقي)
       },
@@ -145,6 +146,17 @@
       outingCap, outingsToday, outingLeft: Math.max(0, outingCap - outingsToday),
       orders: wt.orders, workNet: wt.net, hours: wt.hours
     };
+  }
+
+  // الراتب يوم ثابت بالشهر: كام يوم فاضل، ومسموح لك تصرف كام في اليوم من رصيدك
+  function dailyAllowance() {
+    const t = today(), d = new Date(t + 'T00:00:00');
+    const pd = Math.max(1, Math.min(28, num(state.settings.payday) || 1));
+    let pay = new Date(d.getFullYear(), d.getMonth(), pd);
+    if (pay < d) pay = new Date(d.getFullYear(), d.getMonth() + 1, pd);
+    const daysLeft = Math.max(1, Math.round((pay - d) / 86400000));
+    const av = available();
+    return { payday: pd, daysLeft, available: av, perDay: Math.max(0, Math.round(av / daysLeft)) };
   }
 
   /* ---------- الدخل والتقسيم التلقائي ---------- */
@@ -415,7 +427,7 @@
     iso, today, addDays, daysBetween, weekRange, monthRange, uid, num, defaults,
     save, replaceAll, resetAll,
     addTx, delTx, txInRange, income, expenses, savedBetween, spentByCat, spentInGroup,
-    available, wallet, todayMoney, addIncome, depositSaving, goalSaved,
+    available, wallet, todayMoney, dailyAllowance, addIncome, depositSaving, goalSaved,
     workNet, saveWork, delWork, workInRange, workTotals, workStreak, planStreak,
     goalProgress, goalsOverall, challengeProgress, startChallenge, stopChallenge, retryChallenge,
     projection, alerts, checkPin, setPin, clearPin, exportJSON, importJSON

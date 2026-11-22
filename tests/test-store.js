@@ -205,4 +205,14 @@ ok('todayMoney: المتاح والمصروف وحصة الترفيه', () => {
   eq(Store.todayMoney().spentToday, Store.expenses(T, T), "مصروف النهارده يطابق السجل");
   assert.ok(Store.todayMoney().outingLeft >= 0, "المتبقي لا يكون سالب");
 });
+
+// 19) المسموح تصرفه في اليوم لحد الراتب
+ok('dailyAllowance: يوم الراتب والمصروف اليومي', () => {
+  const a = Store.dailyAllowance();
+  assert.ok(a.daysLeft >= 1 && a.daysLeft <= 31, "الأيام المتبقية منطقية");
+  assert.ok(a.perDay >= 0, "المسموح لا يكون سالب");
+  Store.state.settings.payday = 15;
+  eq(Store.dailyAllowance().payday, 15, "يوم الراتب متحفظ");
+  Store.state.settings.payday = 1;
+});
 console.log('\nنجحت ' + pass + ' مجموعة اختبارات — المتاح: ' + Store.available() + '، المحفظة: ' + Store.wallet());
