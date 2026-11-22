@@ -59,58 +59,51 @@
 
   /* ========== صفحة: الرئيسية ========== */
   function vHome() {
-    const t = todayStr(), tm = S().todayMoney();
+    const t = todayStr(), tm = S().todayMoney(), al = S().dailyAllowance();
     const mo = S().monthRange(0);
     const inc = S().income(mo.from, mo.to), exp = S().expenses(mo.from, mo.to);
     const alerts = S().alerts();
-    const days = new Date().getDate();
-    const burn = days > 0 ? Math.round(exp / days) : 0;   // متوسط صرفك في اليوم الشهر ده
-    const runway = burn > 0 ? Math.floor(tm.available / burn) : null;  // رصيدك كام يوم
     const h = new Date().getHours();
     const greeting = h < 5 ? 'سهرة هادية؟' : h < 12 ? 'صباح الورد 🌅' : h < 17 ? 'يا نهار مرتب ☀️' : h < 22 ? 'مساء الخير 🌆' : 'ليلة هادية 🌙';
+    const rows = [
+      { ic: 'bike',    label: 'طلبات النهارده', val: tm.orders + ' طلب', has: tm.orders > 0,     href: '#/work',   jump: 'work' },
+      { ic: 'receipt', label: 'مصروف النهارده', val: fmt(tm.spentToday), has: tm.spentToday > 0, href: '#/money',  jump: 'expense' },
+      { ic: 'piggy',   label: 'حوّشت النهارده', val: fmt(tm.savedToday), has: tm.savedToday > 0, href: '#/money',  jump: 'saving' }
+    ];
+    const spentPct = al.perDay > 0 ? Math.min(100, Math.round(tm.spentToday / al.perDay * 100)) : 0;
     return `
     <div class="hero slim">
       <p class="date">${esc(dFmt(t))} · ${greeting}</p>
     </div>
-    <div class="card stat hero-money">
-      <h3>معاك دلوقتي</h3>
-      <span class="val">${fmt(tm.available)}</span>
-      <span class="sub">دي فلوسك الحقيقية بعد اللي صرفته — من هنا بتصرف</span>
-      <span class="sub allowance">مسموح لك <strong>${fmt(S().dailyAllowance().perDay)}</strong> في اليوم · باقي ${S().dailyAllowance().daysLeft} يوم لحد الراتب (يوم ${S().dailyAllowance().payday})</span>
-    </div>
-    <div class="grid three">
-      <div class="card stat green"><h3>دخل النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.incomeToday)}</span></div>
-      <div class="card stat red"><h3>مصروف النهارده</h3><span class="val" style="font-size:1.1rem">${fmt(tm.spentToday)}</span></div>
-      <div class="card stat gold"><h3>حوّشت</h3><span class="val" style="font-size:1.1rem">${fmt(tm.savedToday)}</span></div>
-    </div>
-    <div class="grid c2">
-      <div class="card stat blue">
-        <h3>ترفيه النهارده</h3>
-        <span class="val">${tm.outingCap > 0 ? fmt(tm.outingLeft) : '0'}</span>
-        <span class="sub">${tm.outingCap > 0 ? 'باقي من ' + fmt(tm.outingCap) + ' · صرفته ' + fmt(tm.outingsToday) : 'مفيش ميزانية ترفيه — حددها من 💰 أموالي'}</span>
-        ${tm.outingCap > 0 ? bar(Math.round(tm.outingsToday / tm.outingCap * 100), 'gold') : ''}
+    <section class="day-panel">
+      <div class="day-head">
+        <h3>معاك دلوقتي</h3>
+        <div class="day-money">${fmt(tm.available)}</div>
+        <p class="day-allow">مسموح لك <strong>${fmt(al.perDay)}</strong> في اليوم · باقي ${al.daysLeft} يوم لحد الراتب (يوم ${al.payday})</p>
       </div>
-      <div class="card stat green">
-        <h3>طلبات النهارده</h3>
-        <span class="val">${tm.orders}</span>
-        <span class="sub">صافي ${fmt(tm.workNet)}${tm.hours ? ' · ' + tm.hours + ' ساعة' : ''}${tm.orders === 0 ? ' · لسه مفيش تسجيل' : ''}</span>
+      <div class="day-meter">
+        <div class="meter-top"><span>ميزانية اليوم</span><span>${fmt(tm.spentToday)} / ${fmt(al.perDay)}</span></div>
+        ${bar(spentPct, 'gold')}
       </div>
-    </div>
+      <div class="day-rows">
+        ${rows.map(r => '<a class="day-row' + (r.has ? ' has' : '') + '" href="' + r.href + '" data-jump="' + r.jump + '">' +
+          '<span class="day-check">' + (r.has ? '<svg class="ic"><use href="#ic-check"/></svg>' : '') + '</span>' +
+          '<svg class="ic"><use href="#ic-' + r.ic + '"/></svg>' +
+          '<span class="label">' + r.label + '</span><span class="value">' + r.val + '</span></a>').join('')}
+      </div>
+      <p class="day-hint">سجّل الثلاثة دول — يومك يبقى مضبوط ✅</p>
+    </section>
     ${alerts.map(a =>
       '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('')}
-    ${tm.available < 0 ? '<div class="alert warn"><span>🚨</span><span>رصيدك سالب — الصرف بدأ ياخد من فلوسك. المقبس بيضغط.</span></div>' : ''}
-    ${runway !== null && runway >= 0 && runway <= 7 ? '<div class="alert warn"><span>📉</span><span>بمعدل صرفك، رصيدك يكفي <strong>' + runway + ' يوم</strong> بس. خفّف الصرف دلوقتي مش بعدين.</span></div>' : ''}
-    <div class="act-row">
-      <a href="#/work"><svg class="ic"><use href="#ic-bike"/></svg> طلبات</a>
-      <a href="#/money" data-jump="expense"><svg class="ic"><use href="#ic-receipt"/></svg> مصروف</a>
-      <a href="#/money" data-jump="income"><svg class="ic"><use href="#ic-plus"/></svg> دخل</a>
-    </div>
-    <h2 class="sec-title">الشهر</h2>
-    <div class="grid three">
-      <div class="card stat green"><h3>الدخل</h3><span class="val" style="font-size:1.05rem">${fmt(inc)}</span></div>
-      <div class="card stat red"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span>${burn > 0 ? '<span class="sub">' + fmt(burn) + ' في اليوم</span>' : ''}</div>
-      <div class="card stat gold"><h3>صافي</h3><span class="val" style="font-size:1.05rem">${fmt(inc - exp)}</span></div>
-    </div>
+    ${tm.available < 0 ? '<div class="alert warn"><span>🚨</span><span>رصيدك سالب — الصرف بدأ ياخد من فلوسك.</span></div>' : ''}
+    ${al.daysLeft <= 7 ? '<div class="alert warn"><span>📉</span><span>باقي ' + al.daysLeft + ' أيام بس على الراتب — التزم بالمسموح اليومي.</span></div>' : ''}
+    <details class="formbox"><summary>📅 ملخّص الشهر — الدخل ${fmt(inc)} · المصروف ${fmt(exp)} · الصافي ${fmt(inc - exp)}</summary>
+      <div class="grid three">
+        <div class="card stat green"><h3>الدخل</h3><span class="val" style="font-size:1.05rem">${fmt(inc)}</span></div>
+        <div class="card stat red"><h3>المصروف</h3><span class="val" style="font-size:1.05rem">${fmt(exp)}</span></div>
+        <div class="card stat gold"><h3>صافي</h3><span class="val" style="font-size:1.05rem">${fmt(inc - exp)}</span></div>
+      </div>
+    </details>
     <p class="quote-foot">💬 ${esc(quoteOfDay())}</p>`;
   }
 

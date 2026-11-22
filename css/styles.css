@@ -39,6 +39,39 @@ a{color:inherit;text-decoration:none}
   fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
 }
 .title-ic{width:24px;height:24px;color:var(--emerald)}
+/* ===== نظام «لوحة اليوم» الجديد ===== */
+.day-panel{
+  position:relative;overflow:hidden;
+  background:linear-gradient(160deg,rgba(30,41,58,.78),rgba(13,19,29,.88));
+  border:1px solid rgba(212,175,55,.2);
+  border-radius:20px;padding:16px;margin-bottom:12px;
+  box-shadow:0 10px 28px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.day-head{text-align:center;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.day-head h3{font-size:.78rem;color:rgba(212,175,55,.85);font-weight:700;margin-bottom:2px}
+.day-money{font-size:2.3rem;font-weight:900;color:var(--gold);letter-spacing:-1px;line-height:1.15}
+.day-allow{font-size:.72rem;color:var(--gold);opacity:.9;margin-top:2px;line-height:1.5}
+.day-meter{padding:12px 0 4px}
+.meter-top{display:flex;justify-content:space-between;gap:8px;font-size:.73rem;color:var(--muted);margin-bottom:6px}
+.day-rows{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.day-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border:1px solid rgba(255,255,255,.07);border-radius:14px;
+  background:rgba(255,255,255,.035);transition:background .15s,border-color .15s;
+}
+.day-row:active{background:rgba(16,185,129,.1)}
+.day-row > .ic{color:var(--muted);width:19px;height:19px}
+.day-row.has > .ic{color:var(--emerald)}
+.day-row .label{flex:1;font-size:.85rem;font-weight:700}
+.day-row .value{font-size:.8rem;color:var(--muted)}
+.day-row.has .value{color:var(--text)}
+.day-check{
+  width:22px;height:22px;flex:none;border-radius:50%;
+  border:2px solid rgba(255,255,255,.16);display:grid;place-items:center;
+}
+.day-row.has .day-check{border-color:var(--emerald);background:rgba(16,185,129,.16)}
+.day-check .ic{width:13px;height:13px;color:var(--emerald)}
+.day-hint{text-align:center;font-size:.72rem;color:var(--muted);margin-top:10px}
 
 /* ===== Top bar ===== */
 .topbar{
@@ -448,6 +481,7 @@ input,select,textarea{box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
   /* أندرويد: لجنتين كومبوosition الثقيلتين — أقل أو تلغيها (شاشة سوداء بعد الريفريش) */
   .topbar{backdrop-filter:none;background:rgba(11,15,20,.9)}
   .card{backdrop-filter:none;background:linear-gradient(160deg,rgba(19,26,38,.80),rgba(12,17,26,.88))}
+  .day-panel{backdrop-filter:none}
   .dr-grain{display:none}
   .dr-bloom{opacity:.32;filter:blur(8px)}
 }
