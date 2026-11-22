@@ -93,6 +93,7 @@
       </div>
       <p class="day-hint">سجّل الثلاثة دول — يومك يبقى مضبوط ✅</p>
     </section>
+    ${S().state.profile ? '<p class="profile-line">🧠 ' + esc(S().state.profile.summary) + ' <a href="#/settings">تعديل</a></p>' : ''}
     ${alerts.map(a =>
       '<div class="alert ' + a.level + '"><span>' + (a.level === 'good' ? '✅' : a.level === 'warn' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(a.text) + '</span></div>').join('')}
     ${tm.available < 0 ? '<div class="alert warn"><span>🚨</span><span>رصيدك سالب — الصرف بدأ ياخد من فلوسك.</span></div>' : ''}
@@ -131,7 +132,8 @@
     const sys = 'انت "عقل الموقع" في تطبيق "راجع لنفسي" — مدرب مصري ودود بيساعد مُلّاك (سائق طلبيات) يبني توازن نفسي ومالي وعمل بعد ضغط مادي. ' +
       'تكلم عربي مصري بسيط ودافي، ردود قصيرة عملية (3-5 جمل بحد أقصى)، من غير افتراضات عن فلوس ما مش موجودة، ولا عبارات إنشائية جوفاء. ' +
       'لو رقم غير موجود قول صاحبه يسجله الأول. بياناته الحالية: ' + JSON.stringify(digest) +
-      ' اقتراحاتك المحلية المحسوبة: ' + tips.map(t => t.level + ':' + t.title).join(' | ');
+      ' اقتراحاتك المحلية المحسوبة: ' + tips.map(t => t.level + ':' + t.title).join(' | ') +
+      (S().state.profile ? ' شخصية المستخدم: ' + S().state.profile.summary + ' — خلي كلامك على مزاجه.' : '');
     const msgs = [{ role: 'system', content: sys }]
       .concat(aiChat.slice(-8).map(m => ({ role: m.role, content: m.text })), [{ role: 'user', content: q }]);
     let lastErr = null;
@@ -446,7 +448,7 @@
 
   /* ========== صفحة: إعدادات ========== */
   function vSettings() {
-    const st = S().state, s = st.settings;
+    const st = S().state, s = st.settings, p = st.profile;
     const notif = window.Notification ? Notification.permission : 'unsupported';
     return `
     <h2 class="page-title"><svg class="ic title-ic"><use href="#ic-settings"/></svg> الإعدادات<small>بياناتك على جهازك فقط — لا تُرسل لأي خادم.</small></h2>
@@ -488,6 +490,11 @@
     <div class="card"><p class="hint">ثبّت التطبيق على شاشة أندرويد للوصول السريع والعمل دون إنترنت.</p>
       <button class="btn sm mt" data-act="install" id="installBtn" hidden>📲 تثبيت التطبيق</button>
       <p class="hint mt" id="installHint">لو الزر مخفي: من قائمة المتصفح اختر "إضافة إلى الشاشة الرئيسية".</p></div>
+    <h2 class="sec-title">🧠 تحليل شخصيتك</h2>
+    <div class="card">
+      <p class="hint">${p ? esc(p.summary) : 'لم يحلل بعد — هيسألك ٣ أسئلة أول مرة تفتح فيها.'}</p>
+      <button class="btn sm mt" data-act="profile-redo">🔄 ${p ? 'إعادة التحليل' : 'ابدأ التحليل'}</button>
+    </div>
     <h2 class="sec-title">🧠 الذكاء الاصطناعي (اختياري)</h2>
     <div class="card">
       <p class="hint">${s.aiKey ? 'المفتاح مُخزَّن على جهازك بس ✅ — شات «عقل الموقع» مفعّل. ولا شى كتابتك في ملف التصدير.' : 'لوّص مفتاح OpenRouter للشات الحي مع العقل. المفتاح يبقى على جهازك فقط، ولا تُصدَّر مع النسخ الاحتياطية.'}</p>
@@ -588,7 +595,7 @@
     else if (act === 'ch-retry') { S().retryChallenge(b.dataset.id); toast('محاولة جديدة من غير عقاب ✨'); render(); }
     else if (act === 'rep-mode') { reportMode = b.dataset.mode; render(); }
     else if (act === 'pin-clear') { if (confirm('إلغاء PIN؟')) { S().clearPin(); toast('أُلغي PIN'); render(); } }
-    else if (act === 'aikey-clear') { if (confirm('مسح مفتاح الذكاء الاصطناعي؟ الشات الحي هيقفل.')) { st.settings.aiKey = ''; S().save(); toast('مسيحات المفتاح'); render(); } }
+    else if (act === 'profile-redo') { st.profile = null; S().save(); showOnboard(); }
     else if (act === 'notif') {
       if (window.Notification) Notification.requestPermission().then(p => { toast(p === 'granted' ? 'التنبيهات مفعّلة 🔔' : 'رفضت التنبيهات — لا بأس، تنبيهات التطبيق الداخلية موجودة'); render(); });
       else toast('المتصفح لا يدعم التنبيهات — استخدم تنبيهات التطبيق الداخلية');
@@ -718,9 +725,44 @@
     if (S().checkPin($('#pinInput').value.trim())) {
       sessionStorage.setItem('raj3_unlocked', '1'); $('#lockScreen').hidden = true; $('#pinError').hidden = true;
       toast('أهلًا بعودتك 🌿'); render();
+      if (!S().state.profile) showOnboard();
     } else { $('#pinError').hidden = false; $('#pinInput').value = ''; }
   });
+  /* ===== تحليل الشخصية أول مرة ===== */
+  function showOnboard() { $('#onboard').hidden = false; }
+  function finishOnboard(profile) {
+    S().state.profile = profile; S().save();
+    $('#onboard').hidden = true;
+    toast('فهمناك 🌿 — النصايح هتكون على مزاجك');
+    render();
+  }
+  $('#formOnboard').addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const a = { focus: String(fd.get('focus') || ''), pattern: String(fd.get('pattern') || ''), style: String(fd.get('style') || '') };
+    if (!a.focus || !a.pattern || !a.style) return;
+    const local = S().deriveProfile(a), status = $('#onboardStatus');
+    const key = S().state.settings.aiKey;
+    if (!key) return finishOnboard(local);   // من غير مفتاح: تحليل محلي فوري
+    status.textContent = 'الذكاء الاصطناعي بيحلل إجاباتك…';
+    const sys = 'أنت محلل شخصية لتطبيق "راجع لنفسي" لمصريين بيحاولوا يوازنوا فلوسهم وشغلهم ونفسيتهم. ' +
+      'بناءً على إجابات المستخدم، اكتب جملة واحدة بالعربية المصرية (أقل من 18 كلمة) تلخّص ضغطه ونوع النصيحة اللي تناسبه. ' +
+      'ردّ بـ JSON فقط بالشكل: {"summary":"..."} من غير أي كلام تاني.';
+    fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'openrouter/free', max_tokens: 120, messages: [{ role: 'system', content: sys }, { role: 'user', content: JSON.stringify(a) }] })
+    }).then(r => r.json()).then(d => {
+      let txt = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+      let sum = local.summary;
+      if (txt) { try { const j = JSON.parse(String(txt).replace(/```/g, '').trim()); if (j.summary) sum = String(j.summary); } catch (e) { sum = String(txt).slice(0, 140); } }
+      local.summary = sum; local.source = 'ai'; finishOnboard(local);
+    }).catch(() => finishOnboard(local));   // أي فشل → التحليل المحلي
+  });
+  $('#onboardSkip').addEventListener('click', () => finishOnboard(S().deriveProfile({ focus: 'start', pattern: 'rest', style: 'steps' })));
+
   if (S().state.settings.pin && sessionStorage.getItem('raj3_unlocked') !== '1') showLock();
+  else if (!S().state.profile) showOnboard();
 
   /* ===== PWA ===== */
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

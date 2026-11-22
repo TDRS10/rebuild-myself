@@ -215,4 +215,16 @@ ok('dailyAllowance: يوم الراتب والمصروف اليومي', () => {
   eq(Store.dailyAllowance().payday, 15, "يوم الراتب متحفظ");
   Store.state.settings.payday = 1;
 });
+
+// 20) تحليل الشخصية
+ok('deriveProfile: إجابات البداية بتوجّه النصايح', () => {
+  const p = Store.deriveProfile({ focus: "money", pattern: "spend", style: "steps" });
+  eq(p.focus, "money", "التركيز فلوس");
+  assert.ok(p.summary.indexOf("الفلوس") > -1, "الملخص بالعربي");
+  const fallback = Store.deriveProfile({ focus: "x", pattern: "x", style: "x" });
+  eq(fallback.focus, "start", "إجابة غير معروفة = بداية");
+  Store.state.profile = p;
+  assert.ok(Store.advise().some(x => x.title === "على مزاجك"), "نصيحة مخصصة ظهرت");
+  Store.state.profile = null;
+});
 console.log('\nنجحت ' + pass + ' مجموعة اختبارات — المتاح: ' + Store.available() + '، المحفظة: ' + Store.wallet());

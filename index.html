@@ -147,6 +147,43 @@
   });
 </script>
 
+<div id="onboard" hidden>
+  <div class="lock-card onboard-card">
+    <div class="lock-mark">🧠</div>
+    <h2>خليني أفهمك أول مرة</h2>
+    <p>٣ أسئلة سريعة — الموقع هيغيّر نصايحه على حسب إجاباتك. إجاباتك على جهازك بس.</p>
+    <form id="formOnboard">
+      <div class="field"><label>١. أكتر حاجة بتضغطك دلوقتي؟</label>
+        <select name="focus" required>
+          <option value="">— اختر —</option>
+          <option value="money">الفلوس والديون</option>
+          <option value="work">الشغل والإرهاق</option>
+          <option value="mind">المزاج والنفسية</option>
+          <option value="start">مش عارف أبدأ</option>
+        </select></div>
+      <div class="field"><label>٢. لما تضيق، بتعمل إيه غالبًا؟</label>
+        <select name="pattern" required>
+          <option value="">— اختر —</option>
+          <option value="spend">بصرف عشان أهدى</option>
+          <option value="silent">بسكت وبتجاهل</option>
+          <option value="talk">بتكلم وطلب مساعدة</option>
+          <option value="rest">بريّح جسمي (نوم/مشي)</option>
+        </select></div>
+      <div class="field"><label>٣. إزاي تحب النصيحة توصلك؟</label>
+        <select name="style" required>
+          <option value="">— اختر —</option>
+          <option value="direct">مباشرة وعلى طول</option>
+          <option value="calm">هادية وخفيفة</option>
+          <option value="steps">خطوات صغيرة بس</option>
+          <option value="examples">أمثلة وأرقام</option>
+        </select></div>
+      <button class="btn gold block" type="submit">🧠 حللني وابدأ</button>
+      <button class="btn block mt" type="button" id="onboardSkip">تخطي</button>
+      <p class="hint" id="onboardStatus"></p>
+    </form>
+  </div>
+</div>
+
 <div id="lockScreen" hidden>
   <form id="formUnlock" class="lock-card">
     <div class="lock-mark">◆</div>

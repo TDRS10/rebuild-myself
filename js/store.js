@@ -70,6 +70,7 @@
       goals: [],          // {id,name,target,deadline,created}
       boundaries: [],     // {id,date,text,cantAfford,newInstallment,cancelledWork}
       notes: '',          // مساحة خاصة — لا تُرسل لأي جهة
+      profile: null,      // تحليل الشخصية من أسئلة البداية (محلي أو AI)
       challenges: {},     // {id:{status,start,attempts}}
       lastNotify: ''      // آخر يوم أُرسل فيه تنبيه
     };
@@ -92,6 +93,7 @@
       s.daily = s.daily || {}; s.customTasks = s.customTasks || []; s.tx = s.tx || [];
       s.work = s.work || []; s.goals = s.goals || []; s.boundaries = s.boundaries || [];
       s.challenges = s.challenges || {}; s.notes = s.notes || ''; s.lastNotify = s.lastNotify || '';
+      s.profile = s.profile || null;
       return s;
     } catch (e) { return defaults(); }
   }
@@ -416,8 +418,41 @@
     if (!goals.length) out.push({ level: 'info', icon: '🎯', title: 'مفيش هدف محدد', text: 'هدف واحد صغير بقيمة واضحة بيتحول من رغبة لطريق — ابدأ باصغر مبلغ ممكن توصل له.' });
     if (!out.length) out.push({ level: 'good', icon: '🌿', title: 'الوضع متزن', text: 'أرقامك مستقرة. قاعدة اليوم: سجّل وواصل — لا تعدّل حاجة شغالة.' });
 
+    // نصيحة على مزاج الشخص (من أسئلة البداية)
+    const p = state.profile;
+    if (p) {
+      const focusText = {
+        money: 'الخطوة اللي تناسبك: قسّم فلوسك على أيام الراتب قبل أي صرف.',
+        work: 'الخطوة اللي تناسبك: حدّد ساعاتك وقف عند الحد، الصحة قبل البونص.',
+        mind: 'الخطوة اللي تناسبك: سجّل مزاجك اليوم — الوعي أول خطوة.',
+        start: 'الخطوة اللي تناسبك: سجّل حاجة واحدة بس اليوم وابدأ.'
+      };
+      const patternText = {
+        spend: 'ولما تضيق، صرفك مش الحل — جرّب تكتب إحساسك بدل ما تصرف.',
+        silent: 'ولما تضيق، كلمة واحدة لحد بتريح أكتر من الصمت.',
+        talk: 'ولما تضيق، اللي بيتكلم بيلاقي مساعدة — استخدمها.',
+        rest: 'ولما تضيق، الراحة الجسدية عندك صح — استخدمها قبل ما توصل للصرف.'
+      };
+      out.unshift({ level: 'info', icon: '🧠', title: 'على مزاجك',
+        text: (focusText[p.focus] || focusText.start) + ' ' + (patternText[p.pattern] || '') });
+    }
+
     const rank = { warn: 0, info: 1, good: 2 };
     return out.sort((a, b) => rank[a.level] - rank[b.level]).slice(0, 6);
+  }
+
+  /* ---------- تحليل الشخصية (أسئلة البداية) ---------- */
+  const PROFILE_FOCUS = { money: 'الفلوس والديون', work: 'الشغل والإرهاق', mind: 'المزاج والنفسية', start: 'البداية والتنظيم' };
+  const PROFILE_PATTERN = { spend: 'بتصرف لما تضيق', silent: 'بتسكت وتتجاهل', talk: 'بتتكلم وتطلب مساعدة', rest: 'بترتاح بالجسم (نوم/مشي)' };
+  const PROFILE_STYLE = { direct: 'مباشرة وعملية', calm: 'هادية وخفيفة', steps: 'خطوات صغيرة', examples: 'أمثلة وأرقام' };
+  function deriveProfile(a) {
+    const focus = PROFILE_FOCUS[a.focus] ? a.focus : 'start';
+    const pattern = PROFILE_PATTERN[a.pattern] ? a.pattern : 'rest';
+    const style = PROFILE_STYLE[a.style] ? a.style : 'steps';
+    return {
+      focus, pattern, style, source: 'local', answers: a,
+      summary: 'ضغطك الأساسي: ' + PROFILE_FOCUS[focus] + ' · ' + PROFILE_PATTERN[pattern] + ' · النصيحة اللي تناسبك: ' + PROFILE_STYLE[style] + '.'
+    };
   }
 
   return {
@@ -427,7 +462,7 @@
     iso, today, addDays, daysBetween, weekRange, monthRange, uid, num, defaults,
     save, replaceAll, resetAll,
     addTx, delTx, txInRange, income, expenses, savedBetween, spentByCat, spentInGroup,
-    available, wallet, todayMoney, dailyAllowance, addIncome, depositSaving, goalSaved,
+    available, wallet, todayMoney, dailyAllowance, deriveProfile, addIncome, depositSaving, goalSaved,
     workNet, saveWork, delWork, workInRange, workTotals, workStreak, planStreak,
     goalProgress, goalsOverall, challengeProgress, startChallenge, stopChallenge, retryChallenge,
     projection, alerts, checkPin, setPin, clearPin, exportJSON, importJSON
